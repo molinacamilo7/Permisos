@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Validador de Permisos</title>
+<title>Validador de Permisos v2.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -765,7 +765,7 @@ function onXlsFile(input){
 }
 
 function parseXlsRows(rows, sheetName){
-  console.log('Total filas Excel:', rows.length);
+  console.log('=== PARSER v2.1 === Total filas Excel:', rows.length);
   console.log('Fila 0:', JSON.stringify(rows[0]));
   if(rows.length>1) console.log('Fila 1:', JSON.stringify(rows[1]));
 
@@ -861,6 +861,7 @@ function parseXlsRows(rows, sheetName){
       d.setDate(fl.getDate()+di);
       const p2=n=>String(n).padStart(2,'0');
       const fs=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+      console.log('PUSH: '+fs+' '+pais+' '+lobCode+' cupo='+cupo);
       xlsData.push({fecha:fs,country:pais,lobCode,cupo});
     });
   }
