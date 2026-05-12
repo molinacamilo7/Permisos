@@ -877,17 +877,20 @@ async function importarDesdeXls(){
   msg.textContent='';
 
   let errores=0, ok2=0;
-  // Enviar de a 1 fila para no superar límite de URL
-  for(let i=0; i<xlsData.length; i++){
-    const row = xlsData[i];
-    const qs = 'write='+encodeURIComponent(JSON.stringify({action:'savecupos',rows:[row]}));
+  // Enviar en lotes de 50 filas para no superar límite de URL
+  const BATCH = 50;
+  for(let i=0; i<xlsData.length; i+=BATCH){
+    const lote = xlsData.slice(i, i+BATCH);
+    const qs = 'write='+encodeURIComponent(JSON.stringify({action:'savecupos',rows:lote}));
+    console.log('Lote '+(Math.floor(i/BATCH)+1)+': '+lote.length+' filas, '+qs.length+' chars');
     try{
       const r = await fetch(URL+'?'+qs,{cache:'no-store'});
       const res = await r.json();
-      if(res&&res.error) errores++;
-      else ok2++;
-    }catch(e){ errores++; }
-    if((i+1)%10===0) btn.innerHTML='<span class="spin"></span> Enviando '+(i+1)+'/'+xlsData.length+'...';
+      console.log('Resp lote:', res);
+      if(res&&res.error){ errores+=lote.length; }
+      else{ ok2+=lote.length; }
+    }catch(e){ console.error('Error lote:',e); errores+=lote.length; }
+    btn.innerHTML='<span class="spin"></span> Enviando '+(i+BATCH)+'/'+xlsData.length+'...';
   }
 
   btn.innerHTML='&#128640; Cargar cupos desde Excel';
@@ -953,20 +956,21 @@ async function saveCup(){
   console.log("Enviando", rows.length, "filas a Sheets...");
   m.innerHTML='<span class="spindark"></span> Enviando '+rows.length+' filas...';
 
-  // Enviar de a 1 fila para garantizar que la URL no supere el límite
+  // Enviar en lotes de 50 filas
   let errores=0;
-  for(let i=0;i<rows.length;i++){
-    const row=rows[i];
-    const qs='write='+encodeURIComponent(JSON.stringify({action:"savecupos",rows:[row]}));
-    console.log("Fila "+(i+1)+"/"+rows.length+": "+qs.length+" chars", row);
+  const BATCH2=50;
+  for(let i=0;i<rows.length;i+=BATCH2){
+    const lote=rows.slice(i,i+BATCH2);
+    const qs='write='+encodeURIComponent(JSON.stringify({action:"savecupos",rows:lote}));
+    console.log("Lote "+(Math.floor(i/BATCH2)+1)+": "+lote.length+" filas, "+qs.length+" chars");
     try{
       const r=await fetch(URL+'?'+qs,{cache:'no-store'});
       const res=await r.json();
-      console.log("Resp "+(i+1)+":", res);
-      if(res&&res.error) errores++;
+      console.log("Resp:", res);
+      if(res&&res.error) errores+=lote.length;
     }catch(e){
-      console.warn("Error fila "+(i+1)+":",e);
-      errores++;
+      console.warn("Error:",e);
+      errores+=lote.length;
     }
   }
 
