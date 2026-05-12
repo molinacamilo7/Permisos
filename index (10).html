@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validador de Permisos</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#f0ede6;--su:#faf9f6;--s2:#f3f1ec;--s3:#eceae3;
+  --bd:#dddad1;--tx:#1c1b18;--t2:#6b6860;--t3:#a09e98;
+  --gn:#1e5c38;--gm:#2e8050;--gb:#e8f2ec;--gc:#b8d4c0;
+  --rd:#7a1f1f;--rb:#fdf0f0;--rc:#f0c0c0;
+  --am:#7a5010;--ab:#fdf6e8;--ac:#f0d890;
+  --bl:#1a3d6b;--bb:#e8f0fa;--bc:#b0c8f0;
+  --r:10px;--rl:16px;--mono:'Geist Mono',monospace;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;line-height:1.55}
+.bar{background:var(--tx);height:54px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.bar-l{display:flex;align-items:center;gap:10px}
+.bar-ico{width:28px;height:28px;background:var(--gm);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bar-ico svg{width:15px;height:15px;fill:#fff}
+.bar-title{font-size:15px;font-weight:600;color:#f0ede6;letter-spacing:-.2px;line-height:1.2}
+.bar-sub{font-size:11px;color:#8a8880;margin-top:1px}
+.bar-r{display:flex;align-items:center;gap:7px}
+.bar-chip{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.15);color:#a0a098;background:rgba(255,255,255,.06);white-space:nowrap}
+.bar-btn{font-family:'Geist',sans-serif;font-size:12px;font-weight:500;padding:5px 13px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#c0beb8;cursor:pointer;transition:all .15s}
+.bar-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.bar-btn.on{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+.main{max-width:880px;margin:0 auto;padding:24px 16px 60px}
+.card{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);padding:20px 22px;margin-bottom:14px;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.hd-lbl{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t3)}
+.hd-ln{flex:1;height:1px;background:var(--bd);min-width:20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:540px){.g2,.g3{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:12px;font-weight:500;color:var(--t2)}
+.fld input,.fld select,.fld textarea{font-family:'Geist',sans-serif;font-size:14px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);color:var(--tx);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+.fld input,.fld select{height:42px;padding:0 12px}
+.fld textarea{padding:10px 12px;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--gm);box-shadow:0 0 0 3px rgba(46,128,80,.1);background:var(--su)}
+.sw{position:relative}.sw::after{content:'';position:absolute;right:11px;top:50%;transform:translateY(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--t2);pointer-events:none}
+.emp{border-radius:var(--r);padding:11px 13px;min-height:50px;display:flex;align-items:center;gap:11px;border:1px solid var(--bd);background:var(--s2);transition:all .2s}
+.emp.ok{border-color:var(--gc);background:var(--gb)}.emp.er{border-color:var(--rc);background:var(--rb)}
+.emp-av{width:32px;height:32px;border-radius:50%;background:var(--gb);border:1px solid var(--gc);color:var(--gn);font-size:11px;font-weight:600;font-family:var(--mono);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.emp-nm{font-size:13px;font-weight:500}.emp-pp{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.emp-hint{font-size:13px;color:var(--t3);font-style:italic}
+.pi{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.pg{background:var(--gb);color:var(--gn)}.pb{background:var(--bb);color:var(--bl)}.pp{background:#f0ecf8;color:#4a2a8a}.pz{background:var(--s3);color:var(--t2)}
+.cal-note{font-size:12px;color:var(--t2);line-height:1.65;padding:9px 12px;background:var(--s2);border-radius:var(--r);border:1px solid var(--bd);margin-bottom:12px}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-dow span{text-align:center;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--t3);padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dc{aspect-ratio:1;border-radius:8px;border:1px solid var(--bd);background:var(--s2);font-family:var(--mono);font-size:12px;color:var(--tx);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .12s;-webkit-tap-highlight-color:transparent}
+.dc:hover:not(.bk):not(.gh){border-color:var(--gm);background:var(--gb);color:var(--gn)}
+.dc.gh{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+.dc.bk{background:var(--rb);border-color:var(--rc);color:#c09090;cursor:not-allowed}
+.dc.s0,.dc.s1{background:var(--gn);border-color:var(--gn);color:#fff}
+.dc.rg{background:var(--gb);border-color:var(--gc);color:var(--gn)}
+.dc-n{font-size:13px;line-height:1}.dc-cnt{font-size:8px;line-height:1;opacity:.7}
+.leg{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}
+.ld{width:11px;height:11px;border-radius:3px}
+.sel-txt{margin-top:10px;font-size:13px;color:var(--t2);padding:8px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;min-height:36px;display:flex;align-items:center}
+.bn{border-radius:var(--r);padding:11px 13px;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.bn.ok{background:var(--gb);border:1px solid var(--gc)}.bn.no{background:var(--rb);border:1px solid var(--rc)}
+.bn.wn{background:var(--ab);border:1px solid var(--ac)}.bn.in{background:var(--bb);border:1px solid var(--bc)}
+.bi{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
+.ok .bi{background:var(--gn);color:#fff}.no .bi{background:var(--rd);color:#fff}.wn .bi{background:var(--am);color:#fff}.in .bi{background:var(--bl);color:#fff}
+.bt{font-size:13px;font-weight:600}
+.ok .bt{color:var(--gn)}.no .bt{color:var(--rd)}.wn .bt{color:var(--am)}.in .bt{color:var(--bl)}
+.bd2{font-size:12px;color:var(--t2);margin-top:2px}
+.btn{height:42px;padding:0 18px;border-radius:var(--r);font-family:'Geist',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.bp{background:var(--gn);color:#fff;border:none;width:100%}.bp:hover{background:var(--gm)}.bp:active{transform:scale(.99)}.bp:disabled{background:var(--t3);cursor:not-allowed;transform:none}
+.bo{background:transparent;color:var(--gn);border:1px solid var(--gn);width:auto}.bo:hover{background:var(--gb)}
+.bs{height:32px;padding:0 12px;font-size:12px;border:1px solid var(--bd);background:var(--s2);color:var(--t2);border-radius:8px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s}.bs:hover{background:var(--s3);color:var(--tx)}
+.bdd{height:26px;padding:0 9px;font-size:11px;border:1px solid var(--rc);background:var(--rb);color:var(--rd);border-radius:6px;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s}.bdd:hover{background:#f8d8d8}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{height:34px;padding:0 15px;border-radius:8px;font-size:13px;font-weight:500;font-family:'Geist',sans-serif;cursor:pointer;border:1px solid var(--bd);background:var(--s2);color:var(--t2);transition:all .15s}
+.tab.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.tw{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--s2)}
+th{padding:7px 9px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--bd)}
+td{padding:8px 9px;border-bottom:1px solid var(--bd);color:var(--tx);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+.mono{font-family:var(--mono);font-size:12px}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.tg{background:var(--s3);color:var(--t2)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:540px){.stats{grid-template-columns:1fr 1fr}}
+.st{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:12px;text-align:center}
+.stn{font-size:26px;font-weight:600;font-family:var(--mono);line-height:1}
+.stl{font-size:11px;color:var(--t2);margin-top:3px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:540px){.cg{grid-template-columns:1fr}}
+.cc{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:12px}
+.ch{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t2);margin-bottom:9px}
+.cd{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cdi{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cdi label{font-size:8px;font-weight:700;letter-spacing:.4px;color:var(--t3)}
+.cdi input{width:100%;height:28px;text-align:center;font-family:var(--mono);font-size:12px;border:1px solid var(--bd);border-radius:5px;background:var(--su);color:var(--tx);-webkit-appearance:none;appearance:none}
+.cdi input:focus{outline:none;border-color:var(--gm)}
+.ag-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.ag-row:last-child{border-bottom:none}
+.ag-av{width:28px;height:28px;border-radius:50%;background:var(--gb);border:1px solid var(--gc);color:var(--gn);font-size:10px;font-weight:600;font-family:var(--mono);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--bd)}
+.cs:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ct{font-size:13px;font-weight:600;margin-bottom:3px}
+.cd2{font-size:12px;color:var(--t2);margin-bottom:11px;line-height:1.65}
+.lob-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:var(--gb);border:1px solid var(--gc);border-radius:6px;font-size:11px;font-family:var(--mono);margin:2px}
+.lob-tag button{border:none;background:none;cursor:pointer;color:var(--rd);font-size:12px;line-height:1;padding:0 1px}
+.ov{position:fixed;inset:0;background:rgba(20,18,14,.7);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(3px)}
+.ov.show{display:flex}
+.lbx{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);padding:26px 22px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.lbx h2{font-size:17px;font-weight:600;margin-bottom:3px}
+.lbx p{font-size:12px;color:var(--t2);margin-bottom:16px}
+.lerr{font-size:12px;color:var(--rd);margin-top:6px;display:none}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--tx);color:var(--bg);padding:9px 15px;border-radius:9px;font-size:13px;font-weight:500;z-index:300;opacity:0;transform:translateY(6px);transition:all .22s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+.spindark{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.12);border-top-color:var(--gn);border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:26px;color:var(--t3);font-size:13px}
+.src-badge{font-size:11px;padding:3px 8px;border-radius:6px;font-family:var(--mono)}
+.src-ok{background:var(--gb);color:var(--gn)}.src-warn{background:var(--ab);color:var(--am)}
+code{font-family:var(--mono);font-size:11px;background:var(--s2);padding:1px 5px;border-radius:4px}
+footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
+.url-st{font-size:12px;margin-top:6px;padding:7px 10px;border-radius:7px;display:none}
+.url-st.ok{background:var(--gb);color:var(--gn);display:block}
+.url-st.err{background:var(--rb);color:var(--rd);display:block}
+.cal-loading{text-align:center;padding:24px;color:var(--t2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="ov" id="ov">
+  <div class="lbx">
+    <h2>Administraci&#243;n</h2>
+    <p>Acceso restringido</p>
+    <div class="fld"><label>Contrase&#241;a</label><input type="password" id="lpwd" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lerr" id="lerr">Contrase&#241;a incorrecta</div>
+    <button class="btn bp" style="margin-top:12px" onclick="doLogin()">Entrar</button>
+    <button class="bs" style="margin-top:7px;width:100%" onclick="closeOv()">Cancelar</button>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="bar-l">
+    <div class="bar-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h2m-2 4h4"/></svg></div>
+    <div><div class="bar-title" id="bTitle">Validador de Permisos</div><div class="bar-sub" id="bSub">Colombia &amp; Panam&#225;</div></div>
+  </div>
+  <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span><button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button></div>
+</div>
+
+<div class="main">
+
+<!-- AGENTE -->
+<div id="vAg">
+  <div class="card">
+    <div class="hd"><span class="hd-lbl">Datos del solicitante</span><div class="hd-ln"></div></div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="fld"><label>ID Empleado</label><input type="text" id="eId" placeholder="Ej: 10837" oninput="onEmp()" inputmode="numeric" autocomplete="off"></div>
+      <div class="fld"><label>Tipo de novedad</label><div class="sw"><select id="sNov" onchange="onNov()"><option value="">Selecciona...</option></select></div></div>
+    </div>
+    <div class="emp" id="empBox"><span class="emp-hint">Ingresa tu ID para continuar</span></div>
+  </div>
+  <div class="card" id="calCard" style="display:none">
+    <div class="hd"><span class="hd-lbl">Selecciona las fechas</span><div class="hd-ln"></div></div>
+    <div class="cal-note" id="calNote"></div>
+    <div class="cal-loading" id="calLoad" style="display:none"><span class="spindark"></span>Consultando disponibilidad en tiempo real...</div>
+    <div id="calBody" style="display:none">
+      <div class="cal-dow" id="calDow"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:var(--s2);border:1px solid var(--bd)"></div>Con cupos</div>
+        <div class="li"><div class="ld" style="background:var(--rb);border:1px solid var(--rc)"></div>Sin cupos</div>
+        <div class="li"><div class="ld" style="background:var(--gn)"></div>Seleccionado</div>
+        <div class="li"><div class="ld" style="background:var(--gb);border:1px solid var(--gc)"></div>En rango</div>
+      </div>
+      <div class="sel-txt" id="selTxt">Selecciona la fecha de inicio</div>
+    </div>
+  </div>
+  <div id="subArea" style="display:none">
+    <div class="bn in" id="subBn"><div class="bi">i</div><div><div class="bt">Resumen de solicitud</div><div class="bd2" id="subMsg"></div></div></div>
+    <button class="btn bp" id="btnSub" onclick="doSub()">Enviar solicitud de permiso</button>
+  </div>
+  <div id="okArea" style="display:none">
+    <div class="bn ok"><div class="bi">&#10003;</div><div><div class="bt">Solicitud registrada correctamente</div><div class="bd2" id="okMsg"></div></div></div>
+    <button class="bs" style="margin-top:6px" onclick="resetAg()">Nueva solicitud</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="vAdm" style="display:none">
+  <div class="tabs">
+    <button class="tab on" onclick="stab(this,'tSol')">Solicitudes</button>
+    <button class="tab" onclick="stab(this,'tCup')">Cupos</button>
+    <button class="tab" onclick="stab(this,'tAg')">Agentes</button>
+    <button class="tab" onclick="stab(this,'tCfg')">Configuraci&#243;n</button>
+  </div>
+
+  <div id="tSol">
+    <div class="stats">
+      <div class="st"><div class="stn" id="sTot">0</div><div class="stl">Total</div></div>
+      <div class="st"><div class="stn" id="sC1">0</div><div class="stl" id="sC1L">Pa&#237;s 1</div></div>
+      <div class="st"><div class="stn" id="sC2">0</div><div class="stl" id="sC2L">Pa&#237;s 2</div></div>
+    </div>
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Solicitudes</span><div class="hd-ln"></div>
+        <button class="bs" onclick="rendSols()">&#8635; Actualizar</button>
+        <button class="bs" onclick="expXls()">&#8595; Excel</button>
+        <button class="bs" onclick="expCsv()">&#8595; CSV</button>
+      </div>
+      <div id="solsEl"><div class="empty">Cargando...</div></div>
+    </div>
+  </div>
+
+  <div id="tCup" style="display:none">
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Editor de cupos</span><div class="hd-ln"></div></div>
+      <!-- IMPORTAR DESDE EXCEL -->
+      <div style="background:var(--bb);border:1px solid var(--bc);border-radius:var(--r);padding:12px 14px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:600;color:var(--bl);margin-bottom:6px">&#128229; Importar cupos desde Excel (WFM)</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.65">
+          Sube el Excel que te manda WFM. El sistema lee autom&#225;ticamente la tabla y carga los cupos.<br>
+          <strong>Formato esperado:</strong> columnas Pa&#237;s, Fecha lunes, Semana, LOB, Lun, Mar, Mi&#233;, Jue, Vie, S&#225;b, Dom.
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r);border:1px solid var(--bl);color:var(--bl);font-size:13px;font-weight:500;cursor:pointer;background:transparent;transition:all .15s;font-family:Geist,sans-serif">
+            <span>&#128194; Seleccionar archivo Excel</span>
+            <input type="file" id="xlsFile" accept=".xlsx,.xls" style="display:none" onchange="onXlsFile(this)">
+          </label>
+          <span id="xlsFileName" style="font-size:12px;color:var(--t2)">Ning&#250;n archivo seleccionado</span>
+        </div>
+        <div id="xlsPreview" style="display:none;margin-top:12px"></div>
+        <div style="display:flex;gap:8px;margin-top:10px" id="xlsBtns" style="display:none">
+          <button class="btn bo" style="height:36px;font-size:13px;display:none" id="btnXlsImport" onclick="importarDesdeXls()">&#128640; Cargar cupos desde Excel</button>
+        </div>
+        <div id="xlsMsg" style="font-size:12px;margin-top:7px"></div>
+      </div>
+
+      <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.65">
+        O ingresa los cupos manualmente. Al guardar se env&#237;an a Google Sheets y <strong>todos los agentes los ven en tiempo real</strong>.
+      </div>
+      <div class="g2" style="margin-bottom:14px;max-width:420px">
+        <div class="fld"><label>Pa&#237;s</label><div class="sw"><select id="cpPais" onchange="rendCup()"></select></div></div>
+        <div class="fld"><label>Semana</label><div class="sw"><select id="cpSem" onchange="rendCup()"></select></div></div>
+      </div>
+      <div id="cupEd"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn bo" style="height:38px;font-size:13px" onclick="saveCup()">Guardar cupos en Sheets</button>
+        <button class="bs" onclick="copyCup()">Copiar semana anterior</button>
+      </div>
+      <div id="cupMsg" style="font-size:12px;margin-top:7px"></div>
+    </div>
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Semanas del per&#237;odo</span><div class="hd-ln"></div></div>
+      <div id="semList" style="margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="fld" style="flex:0 0 90px"><label>N&#186;</label><input type="number" id="nwNum" min="1" max="60" placeholder="23"></div>
+        <div class="fld" style="flex:1;min-width:150px"><label>Fecha del lunes</label><input type="date" id="nwDate"></div>
+        <div class="fld" style="flex:0 0 auto"><label style="visibility:hidden">x</label><button class="btn bo" style="height:38px;font-size:13px" onclick="addSem()">+ Semana</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tAg" style="display:none">
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Roster de agentes</span><div class="hd-ln"></div><span style="font-size:12px;color:var(--t2)" id="rostCnt"></span></div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.65">
+        El roster se guarda en <strong>Google Sheets (hoja ROSTER)</strong> y se carga autom&#225;ticamente para todos. Importa aqu&#237; y se sincroniza.<br>
+        Formato: <code>ID, Nombre, Pa&#237;s, LOB, Rol, Supervisor</code>
+      </div>
+      <div class="fld" style="margin-bottom:10px"><label>Pegar CSV</label><textarea id="csvTxt" rows="4" placeholder="12199,CAROLINA GOMEZ,Colombia,Proveedores,Agentes,MONICA PEÑA"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn bo" style="height:36px;font-size:13px" onclick="impRost()">Importar y sincronizar con Sheets</button>
+        <button class="bs" onclick="loadRosterFromSheets()">&#8635; Cargar desde Sheets</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--bd);margin-bottom:14px">
+      <div class="hd" style="margin-bottom:12px"><span class="hd-lbl">Agregar agente individual</span><div class="hd-ln"></div></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="fld"><label>ID</label><input type="text" id="naid" placeholder="12199" inputmode="numeric"></div>
+        <div class="fld"><label>Nombre completo</label><input type="text" id="nanm" placeholder="CAROLINA GOMEZ"></div>
+        <div class="fld"><label>Pa&#237;s</label><div class="sw"><select id="napais"><option value="">Seleccionar...</option></select></div></div>
+        <div class="fld"><label>LOB</label><div class="sw"><select id="nalob"><option value="">Seleccionar...</option></select></div></div>
+        <div class="fld"><label>Rol</label><div class="sw"><select id="narol"><option value="Agentes">Agentes</option><option value="Supervisor">Supervisor</option><option value="BackOffice">BackOffice</option></select></div></div>
+        <div class="fld"><label>Supervisor</label><input type="text" id="nasup" placeholder="NOMBRE SUPERVISOR"></div>
+      </div>
+      <button class="btn bo" style="height:36px;font-size:13px" onclick="addAg()">+ Agregar agente</button>
+      <hr style="border:none;border-top:1px solid var(--bd);margin:16px 0">
+      <div id="agList"></div>
+    </div>
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Pa&#237;ses y LOBs</span><div class="hd-ln"></div></div>
+      <div id="lobList" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="fld" style="flex:1;min-width:120px"><label>Pa&#237;s</label><input type="text" id="nlPais" placeholder="Colombia" list="plist"><datalist id="plist"></datalist></div>
+        <div class="fld" style="flex:0 0 80px"><label>C&#243;d LOB</label><input type="text" id="nlCode" placeholder="PV" maxlength="6"></div>
+        <div class="fld" style="flex:1;min-width:120px"><label>Nombre LOB</label><input type="text" id="nlName" placeholder="Proveedores"></div>
+        <div class="fld" style="flex:0 0 auto"><label style="visibility:hidden">x</label><button class="btn bo" style="height:38px;font-size:13px" onclick="addLob()">+ LOB</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tCfg" style="display:none">
+    <div class="card">
+      <div class="cs">
+        <div class="ct">Nombre y per&#237;odo</div>
+        <div class="cd2">T&#237;tulo que ven los agentes y fechas del mes activo.</div>
+        <div class="g2" style="margin-bottom:10px">
+          <div class="fld"><label>T&#237;tulo</label><input type="text" id="cfT" placeholder="Validador de Permisos"></div>
+          <div class="fld"><label>Subt&#237;tulo</label><input type="text" id="cfS" placeholder="Colombia &amp; Panam&#225;"></div>
+        </div>
+        <div class="g3">
+          <div class="fld"><label>Etiqueta</label><input type="text" id="cfC" placeholder="JUNIO 2026" maxlength="14"></div>
+          <div class="fld"><label>Fecha inicio</label><input type="date" id="cfI"></div>
+          <div class="fld"><label>Fecha fin</label><input type="date" id="cfF"></div>
+        </div>
+        <button class="btn bo" style="height:36px;font-size:13px;margin-top:12px" onclick="saveCfg()">Guardar</button>
+        <span id="cfMsg" style="font-size:12px;margin-left:10px;color:var(--gn)"></span>
+      </div>
+      <div class="cs">
+        <div class="ct">Google Apps Script URL</div>
+        <div class="cd2"><strong>Fuente de verdad central.</strong> Cupos, solicitudes y roster viven aqu&#237;. Sin esta URL cada navegador trabaja en aislado.</div>
+        <div class="fld" style="margin-bottom:10px">
+          <label>URL del script</label>
+          <input type="text" id="cfUrl" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:var(--mono);font-size:12px">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn bo" style="height:36px;font-size:13px" onclick="saveUrl()">Guardar URL</button>
+          <button class="bs" onclick="testUrl()">Probar conexi&#243;n</button>
+        </div>
+        <div class="url-st" id="urlSt"></div>
+      </div>
+      <div class="cs">
+        <div class="ct">Tipos de novedad</div>
+        <div class="cd2">Tipos de permiso disponibles para los agentes.</div>
+        <div id="novList" style="margin-bottom:12px"></div>
+        <div class="g2" style="max-width:380px">
+          <div class="fld"><label>C&#243;digo</label><input type="text" id="nnC" placeholder="VAC" maxlength="6" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')addNov()"></div>
+          <div class="fld"><label>Nombre</label><input type="text" id="nnN" placeholder="Vacaciones" onkeydown="if(event.key==='Enter')addNov()"></div>
+        </div>
+        <button class="btn bo" style="height:34px;font-size:12px;margin-top:10px" onclick="addNov()">+ Agregar</button>
+      </div>
+      <div class="cs">
+        <div class="ct">Contrase&#241;a de administrador</div>
+        <div class="cd2">Por defecto: <code>admin123</code></div>
+        <div class="g2" style="max-width:380px">
+          <div class="fld"><label>Nueva</label><input type="password" id="np1"></div>
+          <div class="fld"><label>Confirmar</label><input type="password" id="np2"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <button class="btn bo" style="height:36px;font-size:13px" onclick="chgPwd()">Cambiar</button>
+          <span id="pwMsg" style="font-size:12px;color:var(--gn)"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<footer id="foot">Validador de Permisos &middot; Uso interno</footer>
+
+<script>
+// ═══ STORAGE (solo config local — datos en Sheets) ═══
+const S={g:k=>{try{return JSON.parse(localStorage.getItem('vp_'+k))}catch(e){return null}},s:(k,v)=>localStorage.setItem('vp_'+k,JSON.stringify(v))};
+
+// Config local (título, fechas, LOBs, semanas, novedades, contraseña)
+let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'ACTIVO',ini:'2026-06-01',fin:'2026-06-30'};
+let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"},"Panama":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"}};
+let SEMS = S.g('sems') || [{n:23,d:"2026-06-01"},{n:24,d:"2026-06-08"},{n:25,d:"2026-06-15"},{n:26,d:"2026-06-22"},{n:27,d:"2026-06-29"}];
+let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"}];
+let PWD  = S.g('pwd')  || 'admin123';
+let URL  = S.g('url')  || '';
+
+// Roster: se carga desde Sheets, se cachea local
+let ROST = S.g('rost') || [];
+
+// Cupos en memoria (editor admin — temporal hasta guardar en Sheets)
+let CUPOS_EDITOR = {};
+
+// Cache del calendario (invalidada al abrir calendario)
+let calCache = {};
+
+// Solicitudes vistas en admin
+let lastSols = [];
+
+let isAdm = false;
+
+const DEN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DES={Mon:"LUN",Tue:"MAR",Wed:"MIÉ",Thu:"JUE",Fri:"VIE",Sat:"SÁB",Sun:"DOM"};
+const DORD=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+const p2=n=>String(n).padStart(2,"0");
+const ds=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
+const ini2=n=>{const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[1][0]).toUpperCase():n.slice(0,2).toUpperCase()};
+const fmtD=s=>{if(!s)return"";return new Date(s+"T00:00:00").toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"})};
+const difD=(a,b)=>Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000);
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800)}
+function msgEl(id,txt,col){const e=document.getElementById(id);if(!e)return;e.textContent=txt;if(col)e.style.color=col;setTimeout(()=>{if(e)e.textContent=""},3000)}
+
+// ═══ API SHEETS ═══════════════════════════════════
+// Apps Script tiene problemas de CORS con POST desde navegadores externos.
+// Solución: usar SOLO GET para todo. Las escrituras se envían como
+// parámetros GET codificados. Apps Script los procesa en doGet.
+
+async function apiGet(params){
+  if(!URL) return null;
+  const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  try{
+    const r=await fetch(URL+'?'+qs,{cache:'no-store'});
+    return await r.json();
+  }catch(e){console.warn('apiGet err',e);return null}
+}
+
+// Para escrituras: dividir en lotes pequeños y enviar como GET
+// Cada lote tiene máximo 20 filas para no superar límite de URL
+async function apiPost(data){
+  if(!URL) return false;
+  try{
+    if(data.action==='savecupos'&&data.rows&&data.rows.length>0){
+      // Enviar en lotes de 20 filas
+      const BATCH=20;
+      for(let i=0;i<data.rows.length;i+=BATCH){
+        const batch={action:'savecupos',rows:data.rows.slice(i,i+BATCH)};
+        const qs='write='+encodeURIComponent(JSON.stringify(batch));
+        const r=await fetch(URL+'?'+qs,{cache:'no-store'});
+        const res=await r.json();
+        console.log('Batch '+(i/BATCH+1)+':',res);
+        if(!res||res.error) return false;
+      }
+      return true;
+    }
+    // Para otras escrituras (solicitud, saveroster, saveagent)
+    const qs='write='+encodeURIComponent(JSON.stringify(data));
+    const r=await fetch(URL+'?'+qs,{cache:'no-store'});
+    const res=await r.json();
+    console.log('apiPost result:',res);
+    return res&&res.status==='ok';
+  }catch(e){console.warn('apiPost err',e);return false}
+}
+
+// ═══ INIT ═════════════════════════════════════════
+function applyC(){
+  document.getElementById("bTitle").textContent=CFG.title;
+  document.getElementById("bSub").innerHTML=CFG.sub;
+  document.getElementById("bChip").textContent=CFG.chip;
+  document.getElementById("foot").textContent=CFG.title+" · Uso interno";
+  document.title=CFG.title;
+}
+function fillNovs(){
+  const s=document.getElementById("sNov");
+  s.innerHTML='<option value="">Selecciona...</option>';
+  NOVS.forEach(n=>{const o=document.createElement("option");o.value=n.c;o.textContent=n.c+" — "+n.n;s.appendChild(o)});
+}
+function getSem(ds2){
+  const d=new Date(ds2+"T00:00:00");
+  for(const w of SEMS){const s=new Date(w.d+"T00:00:00"),e=new Date(s);e.setDate(e.getDate()+6);if(d>=s&&d<=e)return w.n}
+  return null;
+}
+function inPer(ds2){return ds2>=CFG.ini&&ds2<=CFG.fin}
+function lobCodeFrom(nm){
+  for(const[co,lbs]of Object.entries(LOBS))
+    for(const[code,name]of Object.entries(lbs))
+      if(name.toLowerCase()===nm.toLowerCase())return code;
+  return nm.toUpperCase().slice(0,2)||"";
+}
+
+// ═══ CARGAR ROSTER DESDE SHEETS ═══════════════════
+async function loadRosterFromSheets(){
+  if(!URL){toast("Configura la URL del script primero");return}
+  const data=await apiGet({action:"roster"});
+  if(!data||!Array.isArray(data)){toast("No se pudo cargar el roster desde Sheets");return}
+  // data es array de arrays: [ID, Nombre, País, LOB, Rol, Supervisor]
+  const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
+  const header=rows[0];
+  // Detectar si tiene cabecera (primera celda es texto no numérico)
+  const start=isNaN(parseInt(rows[0][0]))?1:0;
+  ROST=rows.slice(start).map(r=>{
+    const id=parseInt(r[0]),nm=String(r[1]||"").toUpperCase(),co=String(r[2]||""),lb=String(r[3]||""),ro=String(r[4]||"Agentes"),sv=String(r[5]||"");
+    const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
+    return {id,nm,co,lb,lc,ro,sv};
+  }).filter(r=>r.id&&r.nm);
+  S.s('rost',ROST);
+  rendAgList();
+  toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+}
+
+// Si ya tenemos roster en caché local, usarlo; si no, intentar cargar
+async function initRoster(){
+  if(ROST.length) return; // ya tenemos caché
+  await loadRosterFromSheets();
+}
+
+applyC(); fillNovs();
+initRoster(); // cargar roster al iniciar
+
+// ═══ AGENTE ═══════════════════════════════════════
+let curE=null,selA=null,selB=null,selSt=0;
+
+function onEmp(){
+  const v=document.getElementById("eId").value.trim();
+  const box=document.getElementById("empBox");
+  curE=null;selA=null;selB=null;selSt=0;
+  document.getElementById("calCard").style.display="none";
+  document.getElementById("subArea").style.display="none";
+  document.getElementById("okArea").style.display="none";
+  if(!v){box.className="emp";box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';return}
+  const e=ROST.find(r=>String(r.id)===v);
+  if(!e){box.className="emp er";box.innerHTML='<span class="emp-hint" style="color:var(--rd)">ID no encontrado. Si eres nuevo, pide al administrador que actualice el roster.</span>';return}
+  curE=e;
+  box.className="emp ok";
+  box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm">'+e.nm+'</div><div class="emp-pp">'
+    +'<span class="pi pb">'+e.co+'</span>'
+    +(e.lc?'<span class="pi pg">'+e.lc+' · '+e.lb+'</span>':'<span class="pi pz">'+(e.lb||"Sin LOB")+'</span>')
+    +'<span class="pi pp">'+e.ro+'</span>'
+    +(e.sv?'<span style="font-size:10px;color:var(--t3)">Sup: '+e.sv+'</span>':'')
+    +'</div></div>';
+  onNov();
+}
+
+function onNov(){
+  if(!curE)return;
+  if(!document.getElementById("sNov").value)return;
+  if(!curE.lc){document.getElementById("calCard").style.display="none";return}
+  document.getElementById("calCard").style.display="block";
+  document.getElementById("calNote").textContent="Días en rojo = sin cupos para "+curE.lc+" ("+curE.lb+") en "+curE.co+". Disponibilidad en tiempo real.";
+  loadAndRenderCal();
+}
+
+async function loadAndRenderCal(){
+  calCache={};
+  document.getElementById("calLoad").style.display="flex";
+  document.getElementById("calBody").style.display="none";
+
+  // 1. Obtener cupos base desde Sheets
+  const cuposData=await apiGet({action:"cuposbase",country:curE.co,lob:curE.lc});
+
+  // 2. Obtener solicitudes ya registradas para descontar usados
+  const solsData=await apiGet({action:"get"});
+  const usedMap={};
+  if(solsData&&Array.isArray(solsData)){
+    solsData.forEach(r=>{
+      if(r.country!==curE.co||(r.lobCode!==curE.lc&&r.lob!==curE.lc))return;
+      if(!r.fechaIni||!r.fechaFin)return;
+      let c=new Date(String(r.fechaIni).slice(0,10)+"T00:00:00");
+      const f=new Date(String(r.fechaFin).slice(0,10)+"T00:00:00");
+      while(c<=f){const d2=ds(c);usedMap[d2]=(usedMap[d2]||0)+1;c.setDate(c.getDate()+1)}
+    });
+  }
+
+  // 3. Construir mapa de cupos disponibles por fecha
+  const baseMap={};
+  if(cuposData&&cuposData.cupos){
+    cuposData.cupos.forEach(r=>{if(r.fecha)baseMap[r.fecha]=Number(r.cupo)||0});
+  }
+
+  // 4. Llenar cache día a día
+  const fst=new Date(CFG.ini+"T00:00:00"),last=new Date(CFG.fin+"T00:00:00");
+  let cur=new Date(fst);
+  while(cur<=last){
+    const dstr=ds(cur);
+    const base=baseMap[dstr]??0;
+    const used=usedMap[dstr]||0;
+    calCache[dstr]=Math.max(0,base-used);
+    cur.setDate(cur.getDate()+1);
+  }
+
+  document.getElementById("calLoad").style.display="none";
+  document.getElementById("calBody").style.display="block";
+  rendCalDow(); rendCal();
+}
+
+function rendCalDow(){
+  document.getElementById("calDow").innerHTML=DORD.map(d=>"<span>"+DES[d]+"</span>").join("");
+}
+
+function rendCal(){
+  const g=document.getElementById("calGrid");g.innerHTML="";
+  if(!curE)return;
+  const fst=new Date(CFG.ini+"T00:00:00");
+  const fd=new Date(fst.getFullYear(),fst.getMonth(),1);
+  const off=fd.getDay()===0?6:fd.getDay()-1;
+  for(let i=0;i<off;i++){const x=document.createElement("div");x.className="dc gh";g.appendChild(x)}
+  const last=new Date(fst.getFullYear(),fst.getMonth()+1,0).getDate();
+  for(let d=1;d<=last;d++){
+    const dstr=fst.getFullYear()+"-"+p2(fst.getMonth()+1)+"-"+p2(d);
+    const inP=inPer(dstr);
+    const avail=inP?(calCache[dstr]??0):null;
+    const blk=inP&&avail<=0;
+    const el=document.createElement("div");
+    let cls="dc";
+    if(!inP)cls+=" gh";
+    else if(blk)cls+=" bk";
+    if(selA&&dstr===selA)cls+=" s0";
+    if(selB&&dstr===selB)cls+=" s1";
+    if(selA&&selB&&dstr>selA&&dstr<selB)cls+=" rg";
+    el.className=cls;
+    el.innerHTML='<span class="dc-n">'+d+'</span>'+(inP&&avail>0?'<span class="dc-cnt">'+avail+'</span>':'');
+    if(inP&&!blk)el.onclick=(s=>()=>onDay(s))(dstr);
+    el.title=inP?(blk?"Sin cupos":avail+" cupo"+(avail!==1?"s":"")+" disponible"+(avail!==1?"s":"")):"";
+    g.appendChild(el);
+  }
+  updSelTxt();
+}
+
+function onDay(d){
+  if(selSt===0){selA=d;selB=null;selSt=1}
+  else{if(d<selA){selA=d;selB=null;selSt=1}else{selB=d;selSt=0}}
+  rendCal();updSub();
+}
+function updSelTxt(){
+  const el=document.getElementById("selTxt");
+  if(!selA){el.textContent="Selecciona la fecha de inicio";return}
+  if(!selB){el.innerHTML="<strong>Inicio:</strong> "+fmtD(selA)+" — ahora selecciona la fecha fin";return}
+  const d=difD(selA,selB)+1;
+  el.innerHTML="<strong>"+fmtD(selA)+"</strong> → <strong>"+fmtD(selB)+"</strong> · "+d+" día"+(d>1?"s":"");
+}
+function updSub(){
+  const area=document.getElementById("subArea");
+  if(!selA||!selB||!curE){area.style.display="none";return}
+  const nov=document.getElementById("sNov").value;
+  if(!nov){area.style.display="none";return}
+  let blkd=[],c=new Date(selA+"T00:00:00"),f=new Date(selB+"T00:00:00");
+  while(c<=f){const d2=ds(c);if((calCache[d2]??0)<=0)blkd.push(fmtD(d2));c.setDate(c.getDate()+1)}
+  const days=difD(selA,selB)+1;
+  const nn=NOVS.find(x=>x.c===nov)?.n||nov;
+  const bn=document.getElementById("subBn"),sm=document.getElementById("subMsg"),btn=document.getElementById("btnSub");
+  area.style.display="block";
+  if(blkd.length){
+    bn.className="bn wn";sm.innerHTML="<strong>"+curE.nm+"</strong> · "+nn+"<br>⚠️ Sin cupos: "+blkd.join(", ");btn.disabled=true;
+  }else{
+    bn.className="bn in";sm.innerHTML="<strong>"+curE.nm+"</strong> · "+nn+" · "+fmtD(selA)+" → "+fmtD(selB)+" ("+days+" día"+(days>1?"s":"")+")";btn.disabled=false;
+  }
+}
+async function doSub(){
+  if(!curE||!selA||!selB)return;
+  const nov=document.getElementById("sNov").value;
+  const nn=NOVS.find(x=>x.c===nov)?.n||nov;
+  const btn=document.getElementById("btnSub");
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Enviando...';
+  const payload={action:"solicitud",id:curE.id,name:curE.nm,country:curE.co,lob:curE.lb,lobCode:curE.lc,supervisor:curE.sv||"",nov,novName:nn,fechaIni:selA,fechaFin:selB,dias:difD(selA,selB)+1,ts:new Date().toISOString()};
+  const ok=await apiPost(payload);
+  document.getElementById("subArea").style.display="none";
+  document.getElementById("okArea").style.display="block";
+  document.getElementById("okMsg").innerHTML="<strong>"+curE.nm+"</strong> · "+nn+" · "+fmtD(selA)+" → "+fmtD(selB)+" · "+payload.dias+" día"+(payload.dias>1?"s":"")
+    +(ok?' <span style="color:var(--gn)">✓ Guardado en Google Sheets</span>':' <span style="color:var(--am)">(sin conexión a Sheets)</span>');
+  toast("✓ Permiso registrado");
+  btn.innerHTML="Enviar solicitud de permiso";
+}
+function resetAg(){
+  document.getElementById("eId").value="";document.getElementById("sNov").value="";
+  curE=null;selA=null;selB=null;selSt=0;calCache={};
+  document.getElementById("empBox").className="emp";
+  document.getElementById("empBox").innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';
+  document.getElementById("calCard").style.display="none";
+  document.getElementById("subArea").style.display="none";
+  document.getElementById("okArea").style.display="none";
+}
+
+// ═══ ADMIN AUTH ════════════════════════════════════
+function clickAdmin(){if(isAdm){logout();return}document.getElementById("ov").classList.add("show");setTimeout(()=>document.getElementById("lpwd").focus(),80)}
+function closeOv(){document.getElementById("ov").classList.remove("show");document.getElementById("lpwd").value="";document.getElementById("lerr").style.display="none"}
+function doLogin(){
+  if(document.getElementById("lpwd").value===PWD){
+    isAdm=true;closeOv();
+    document.getElementById("btnAdm").classList.add("on");document.getElementById("btnAdm").textContent="× Salir";
+    document.getElementById("vAg").style.display="none";document.getElementById("vAdm").style.display="block";
+    rendSols();populCfg();rendCupSels();rendCup();rendAgList();rendLobList();rendSemList();
+  }else{document.getElementById("lerr").style.display="block"}
+}
+function logout(){
+  isAdm=false;
+  document.getElementById("btnAdm").classList.remove("on");document.getElementById("btnAdm").textContent="Admin";
+  document.getElementById("vAdm").style.display="none";document.getElementById("vAg").style.display="block";
+}
+
+// ═══ TABS ══════════════════════════════════════════
+function stab(btn,id){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("on"));btn.classList.add("on");
+  ["tSol","tCup","tAg","tCfg"].forEach(t=>document.getElementById(t).style.display="none");
+  document.getElementById(id).style.display="block";
+  if(id==="tSol")rendSols();
+  if(id==="tCup"){rendCupSels();rendCup();rendSemList()}
+  if(id==="tAg"){rendAgList();rendLobList();fillAgSels()}
+  if(id==="tCfg"){populCfg();rendNovList()}
+}
+
+// ═══ SOLICITUDES ═══════════════════════════════════
+async function rendSols(){
+  document.getElementById("solsEl").innerHTML='<div class="empty"><span class="spindark"></span> Cargando desde Sheets...</div>';
+  let reqs=[],src="local";
+  if(URL){
+    const d=await apiGet({action:"get"});
+    if(d&&Array.isArray(d)){
+      reqs=d.map(r=>({id:r.id||"",nm:r.name||"",co:r.country||"",lb:r.lob||"",lc:r.lobCode||r.lob||"",nov:r.nov||"",novn:r.novName||"",ini:String(r.fechaIni||"").slice(0,10),fin:String(r.fechaFin||"").slice(0,10),dias:r.dias||0,sv:r.supervisor||"",ts:r.ts||""}));
+      src="sheets";
+    }
+  }
+  lastSols=reqs;
+  const ps=Object.keys(LOBS);
+  document.getElementById("sTot").textContent=reqs.length;
+  document.getElementById("sC1").textContent=reqs.filter(r=>r.co===ps[0]).length;
+  document.getElementById("sC2").textContent=reqs.filter(r=>r.co===ps[1]).length;
+  document.getElementById("sC1L").textContent=ps[0]||"País 1";
+  document.getElementById("sC2L").textContent=ps[1]||"País 2";
+  const el=document.getElementById("solsEl");
+  const badge=src==="sheets"?'<span class="src-badge src-ok">✓ Google Sheets</span>':'<span class="src-badge src-warn">⚠ Sin conexión</span>';
+  if(!reqs.length){el.innerHTML='<div class="empty">No hay solicitudes '+badge+'</div>';return}
+  el.innerHTML='<div style="font-size:11px;color:var(--t3);margin-bottom:6px">'+reqs.length+' registros '+badge+'</div>'
+    +'<div class="tw"><table><thead><tr><th>ID</th><th>Nombre</th><th>País</th><th>LOB</th><th>Novedad</th><th>Inicio</th><th>Fin</th><th>Días</th><th>Hora</th></tr></thead><tbody>'
+    +reqs.map(r=>'<tr><td class="mono">'+r.id+'</td><td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.nm+'</td><td><span class="pi pb" style="font-size:10px">'+r.co+'</span></td><td><span class="pi pg" style="font-size:10px">'+(r.lc||r.lb||"")+'</span></td><td><span class="tag tg">'+(r.nov||"")+'</span></td><td class="mono">'+(r.ini||"")+'</td><td class="mono">'+(r.fin||"")+'</td><td class="mono">'+(r.dias||"")+'</td><td style="font-size:11px;color:var(--t3)">'+(r.ts?new Date(r.ts).toLocaleString("es-CO",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—")+'</td></tr>').join("")
+    +'</tbody></table></div>';
+}
+function expXls(){
+  if(!lastSols.length){toast("No hay solicitudes");return}
+  const data=[["ID","Nombre","País","LOB","Cód LOB","Novedad","Nombre Novedad","Fecha Inicio","Fecha Fin","Días","Supervisor","Registrado"],...lastSols.map(r=>[r.id,r.nm,r.co,r.lb,r.lc||"",r.nov,r.novn||"",r.ini,r.fin,r.dias,r.sv||"",r.ts?new Date(r.ts).toLocaleString("es-CO"):""])];
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:8},{wch:36},{wch:12},{wch:14},{wch:8},{wch:6},{wch:24},{wch:12},{wch:12},{wch:6},{wch:30},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,"Permisos");XLSX.writeFile(wb,"permisos_"+new Date().toISOString().slice(0,10)+".xlsx");toast("✓ Excel descargado");
+}
+function expCsv(){
+  if(!lastSols.length){toast("No hay solicitudes");return}
+  const h=["ID","Nombre","País","LOB","CodLOB","Novedad","NombreNovedad","Ini","Fin","Días","Supervisor","Registrado"];
+  const rows=lastSols.map(r=>[r.id,r.nm,r.co,r.lb,r.lc||"",r.nov,r.novn||"",r.ini,r.fin,r.dias,r.sv||"",r.ts||""].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(","));
+  const a=document.createElement("a");a.href="data:text/csv;charset=utf-8,﻿"+encodeURIComponent([h.join(","),...rows].join("\n"));a.download="permisos_"+new Date().toISOString().slice(0,10)+".csv";a.click();toast("✓ CSV descargado");
+}
+
+// ═══ IMPORTAR EXCEL ══════════════════════════════════
+let xlsData = []; // filas parseadas del Excel
+
+function onXlsFile(input){
+  if(!input.files||!input.files[0]) return;
+  const file = input.files[0];
+  document.getElementById('xlsFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const wb = XLSX.read(e.target.result, {type:'binary', cellDates:true});
+      // Buscar la hoja correcta (la que tiene datos de cupos)
+      let ws = null, sheetName = '';
+      for(const name of wb.SheetNames){
+        const s = wb.Sheets[name];
+        const ref = s['!ref'];
+        if(ref) { ws = s; sheetName = name; break; }
+      }
+      if(!ws){ toast('No se encontró ninguna hoja con datos'); return; }
+
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      parseXlsRows(rows, sheetName);
+    }catch(err){
+      console.error('Error leyendo Excel:', err);
+      document.getElementById('xlsMsg').textContent = 'Error al leer el archivo: ' + err.message;
+      document.getElementById('xlsMsg').style.color = 'var(--rd)';
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function parseXlsRows(rows, sheetName){
+  console.log('Total filas Excel:', rows.length);
+  console.log('Fila 0:', JSON.stringify(rows[0]));
+  if(rows.length>1) console.log('Fila 1:', JSON.stringify(rows[1]));
+
+  // Buscar fila cabecera que tenga "LOB"
+  let headerRow = 0;
+  for(let i=0;i<Math.min(10,rows.length);i++){
+    if(rows[i].map(c=>String(c).trim().toUpperCase()).includes('LOB')){
+      headerRow=i; break;
+    }
+  }
+  console.log('Cabecera en fila', headerRow, ':', rows[headerRow]);
+
+  const H = rows[headerRow].map(c=>String(c).trim().toUpperCase());
+
+  // Detectar columnas por nombre exacto
+  const iP   = H.findIndex(h=>h==='PAIS'||h==='PA\u00cdS'||h==='COUNTRY');
+  const iF   = H.findIndex(h=>h==='FECHA_LUNES'||h==='FECHA LUNES'||h==='FECHA'||h==='IN WEEK');
+  const iL   = H.findIndex(h=>h==='LOB');
+  const iMon = H.findIndex(h=>h==='MON'||h==='LUN');
+  const iTue = H.findIndex(h=>h==='TUE'||h==='MAR');
+  const iWed = H.findIndex(h=>h==='WED'||h==='MI\u00c9'||h==='MIE'||h==='WED.');
+  const iThu = H.findIndex(h=>h==='THU'||h==='JUE');
+  const iFri = H.findIndex(h=>h==='FRI'||h==='VIE');
+  const iSat = H.findIndex(h=>h==='SAT'||h==='S\u00c1B'||h==='SAB');
+  const iSun = H.findIndex(h=>h==='SUN'||h==='DOM');
+
+  // Si no detecta días por nombre, usar posiciones fijas del formato WFM
+  // A=Pais, B=FechaLunes, C=Semana, D=LOB, E=Mon, F=Tue, G=Wed, H=Thu, I=Fri, J=Sat, K=Sun
+  const useFix = iMon===-1;
+  const pI = useFix?0:iP;
+  const fI = useFix?1:iF;
+  const lI = useFix?3:iL;
+  const dI = useFix?[4,5,6,7,8,9,10]:[iMon,iTue,iWed,iThu,iFri,iSat,iSun];
+
+  console.log('Usando '+(useFix?'posiciones fijas':'cabecera detectada'));
+  console.log('pais=col'+pI+' fecha=col'+fI+' lob=col'+lI+' dias=cols'+JSON.stringify(dI));
+  // Mostrar primera fila de datos para verificar
+  if(rows.length>headerRow+1) console.log('Primera fila de datos:', JSON.stringify(rows[headerRow+1]));
+
+  xlsData=[];
+  let errores=0;
+
+  for(let i=headerRow+1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||r.length<4) continue;
+    if(r.every(c=>c===''||c===null||c===undefined)) continue;
+
+    const pais    = String(r[pI]||'').trim();
+    const fechaRaw = r[fI];
+    const lobCode  = String(r[lI]||'').trim().toUpperCase();
+
+    if(!pais||!lobCode) continue;
+    if(!/^[A-Z]{1,6}$/.test(lobCode)) continue; // ignorar filas que no sean LOB
+
+    // Parsear fecha del lunes
+    let fl=null;
+    if(fechaRaw instanceof Date && !isNaN(fechaRaw)){
+      fl=new Date(fechaRaw);
+    } else {
+      const s=String(fechaRaw).trim();
+      // "1-jun", "15-Jun", "1-Jun-2026"
+      const m=s.match(/^(\d{1,2})[-\/]([A-Za-z]{3,})(?:[-\/](\d{4}))?$/i);
+      if(m){
+        const mo={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12,ene:1,abr:4,ago:8,dic:12};
+        const mn=mo[m[2].toLowerCase().slice(0,3)];
+        const yr=m[3]?parseInt(m[3]):new Date().getFullYear();
+        if(mn) fl=new Date(yr,mn-1,parseInt(m[1]));
+      } else if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
+        fl=new Date(s+'T00:00:00');
+      } else if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){
+        const p=s.split('/');
+        fl=new Date(p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0')+'T00:00:00');
+      }
+    }
+
+    if(!fl||isNaN(fl.getTime())){
+      console.warn('Fila '+(i+1)+' fecha no reconocida:',fechaRaw);
+      errores++; continue;
+    }
+
+    // Debug primera fila de datos
+    if(i===headerRow+1) console.log('Primera fila datos, indices dI='+JSON.stringify(dI)+', valores:', dI.map(ci=>r[ci]));
+
+    dI.forEach((ci,di)=>{
+      if(ci<0||ci>=r.length) return;
+      const raw=r[ci];
+      // Solo filtrar texto no numérico (pero aceptar 0)
+      if(raw===''||raw===null||raw===undefined) return;
+      if(typeof raw==='string'&&raw.trim()===''){ return; }
+      const cupo=parseInt(Number(raw))||0;
+      if(cupo<=0) return; // no guardar ceros
+      const d=new Date(fl);
+      d.setDate(fl.getDate()+di);
+      const p2=n=>String(n).padStart(2,'0');
+      const fs=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+      xlsData.push({fecha:fs,country:pais,lobCode,cupo});
+    });
+  }
+}
+
+async function importarDesdeXls(){
+  if(!xlsData||!xlsData.length){ toast('Primero selecciona un archivo Excel'); return; }
+  if(!URL){ toast('Configura la URL del script en Configuración primero'); return; }
+
+  const btn = document.getElementById('btnXlsImport');
+  const msg = document.getElementById('xlsMsg');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Enviando '+xlsData.length+' cupos...';
+  msg.textContent='';
+
+  let errores=0, ok2=0;
+  // Enviar de a 1 fila para no superar límite de URL
+  for(let i=0; i<xlsData.length; i++){
+    const row = xlsData[i];
+    const qs = 'write='+encodeURIComponent(JSON.stringify({action:'savecupos',rows:[row]}));
+    try{
+      const r = await fetch(URL+'?'+qs,{cache:'no-store'});
+      const res = await r.json();
+      if(res&&res.error) errores++;
+      else ok2++;
+    }catch(e){ errores++; }
+    if((i+1)%10===0) btn.innerHTML='<span class="spin"></span> Enviando '+(i+1)+'/'+xlsData.length+'...';
+  }
+
+  btn.innerHTML='&#128640; Cargar cupos desde Excel';
+  btn.disabled=false;
+  calCache={};
+
+  if(errores===0){
+    msg.textContent='✓ '+ok2+' cupos importados correctamente. Los agentes ya ven la disponibilidad actualizada.';
+    msg.style.color='var(--gn)';
+    toast('✓ Cupos importados desde Excel');
+  }else{
+    msg.textContent='⚠ '+ok2+' ok, '+errores+' errores. Ver consola F12.';
+    msg.style.color='var(--am)';
+  }
+  setTimeout(()=>{if(msg)msg.textContent=''},5000);
+}
+
+// ═══ CUPOS ═════════════════════════════════════════
+function rendCupSels(){
+  document.getElementById("cpPais").innerHTML=Object.keys(LOBS).map(p=>'<option value="'+p+'">'+p+'</option>').join("");
+  document.getElementById("cpSem").innerHTML=SEMS.map(w=>'<option value="'+w.n+'">Semana '+w.n+' ('+w.d+')</option>').join("");
+}
+function rendCup(){
+  const co=document.getElementById("cpPais").value;
+  const wn=parseInt(document.getElementById("cpSem").value);
+  const lbs=LOBS[co]||{};
+  const el=document.getElementById("cupEd");
+  if(!Object.keys(lbs).length){el.innerHTML='<div class="empty" style="padding:10px">Sin LOBs configurados para este país.</div>';return}
+  el.innerHTML='<div class="cg">'+Object.entries(lbs).map(([code,name])=>{
+    const key=co+"|"+code+"|"+wn;
+    const data=CUPOS_EDITOR[key]||{Mon:0,Tue:0,Wed:0,Thu:0,Fri:0,Sat:0,Sun:0};
+    return '<div class="cc"><div class="ch">'+name+' ('+code+')</div><div class="cd">'
+      +DORD.map(d=>'<div class="cdi"><label>'+DES[d]+'</label><input type="number" min="0" max="999" value="'+(data[d]??0)+'" id="ci_'+co+'_'+code+'_'+wn+'_'+d+'"></div>').join("")
+      +'</div></div>';
+  }).join("")+'</div>';
+}
+async function saveCup(){
+  const co=document.getElementById("cpPais").value;
+  const wn=parseInt(document.getElementById("cpSem").value);
+  const lbs=LOBS[co]||{};
+  const m=document.getElementById("cupMsg");
+  m.innerHTML='<span class="spindark"></span> Guardando en Sheets...';m.style.color="var(--t2)";
+
+  // Construir filas para enviar al Apps Script
+  // Cada celda = {fecha, country, lobCode, cupo}
+  const rows=[];
+  const semData=SEMS.find(s=>s.n===wn);
+  if(!semData){m.textContent="Semana no encontrada";return}
+
+  Object.entries(lbs).forEach(([code,name])=>{
+    const key=co+"|"+code+"|"+wn;
+    const obj={};
+    DORD.forEach(d=>{const inp=document.getElementById("ci_"+co+"_"+code+"_"+wn+"_"+d);if(inp)obj[d]=parseInt(inp.value)||0});
+    CUPOS_EDITOR[key]=obj;
+    // Generar una fila por día de la semana
+    const lun=new Date(semData.d+"T00:00:00");
+    DORD.forEach((d,i)=>{
+      const fecha=new Date(lun);fecha.setDate(lun.getDate()+i);
+      rows.push({fecha:ds(fecha),country:co,lobCode:code,cupo:obj[d]||0});
+    });
+  });
+
+  console.log("Enviando", rows.length, "filas a Sheets...");
+  m.innerHTML='<span class="spindark"></span> Enviando '+rows.length+' filas...';
+
+  // Enviar de a 1 fila para garantizar que la URL no supere el límite
+  let errores=0;
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];
+    const qs='write='+encodeURIComponent(JSON.stringify({action:"savecupos",rows:[row]}));
+    console.log("Fila "+(i+1)+"/"+rows.length+": "+qs.length+" chars", row);
+    try{
+      const r=await fetch(URL+'?'+qs,{cache:'no-store'});
+      const res=await r.json();
+      console.log("Resp "+(i+1)+":", res);
+      if(res&&res.error) errores++;
+    }catch(e){
+      console.warn("Error fila "+(i+1)+":",e);
+      errores++;
+    }
+  }
+
+  if(errores===0){
+    m.textContent="✓ Cupos guardados en Sheets ("+rows.length+" filas)";m.style.color="var(--gn)";
+    calCache={};
+  }else{
+    m.textContent="⚠ "+errores+" errores al guardar. Ver F12 consola.";m.style.color="var(--am)";
+  }
+  setTimeout(()=>{if(m)m.textContent=""},4000);
+}
+async function copyCup(){
+  const co=document.getElementById("cpPais").value;
+  const wn=parseInt(document.getElementById("cpSem").value);
+  const idx=SEMS.findIndex(w=>w.n===wn);
+  if(idx<=0){toast("No hay semana anterior");return}
+  const prev=SEMS[idx-1].n;
+  Object.keys(LOBS[co]||{}).forEach(code=>{
+    const src=CUPOS_EDITOR[co+"|"+code+"|"+prev];
+    if(src)CUPOS_EDITOR[co+"|"+code+"|"+wn]=Object.assign({},src);
+  });
+  rendCup();toast("✓ Valores copiados de semana "+prev+" (guarda para aplicar)");
+}
+function rendSemList(){
+  const el=document.getElementById("semList");
+  if(!SEMS.length){el.innerHTML='<div class="empty" style="padding:8px">Sin semanas</div>';return}
+  el.innerHTML='<div class="tw"><table><thead><tr><th>Nº</th><th>Lunes inicio</th><th></th></tr></thead><tbody>'
+    +SEMS.map((w,i)=>'<tr><td class="mono">W'+w.n+'</td><td class="mono">'+w.d+'</td><td><button class="bdd" onclick="delSem('+i+')">&#10005;</button></td></tr>').join("")
+    +'</tbody></table></div>';
+}
+function addSem(){
+  const n=parseInt(document.getElementById("nwNum").value),d=document.getElementById("nwDate").value;
+  if(!n||!d){toast("Ingresa número y fecha");return}
+  if(SEMS.find(w=>w.n===n)){toast("Esa semana ya existe");return}
+  SEMS.push({n,d});SEMS.sort((a,b)=>a.n-b.n);S.s('sems',SEMS);
+  document.getElementById("nwNum").value="";document.getElementById("nwDate").value="";
+  rendSemList();rendCupSels();toast("✓ Semana agregada");
+}
+function delSem(i){SEMS.splice(i,1);S.s('sems',SEMS);rendSemList();rendCupSels();toast("Semana eliminada")}
+
+// ═══ AGENTES ═══════════════════════════════════════
+function fillAgSels(){
+  const ps=Object.keys(LOBS);
+  const pEl=document.getElementById("napais");
+  pEl.innerHTML='<option value="">Seleccionar...</option>'+ps.map(p=>'<option value="'+p+'">'+p+'</option>').join("");
+  pEl.onchange=()=>{
+    const lbs=LOBS[pEl.value]||{};
+    document.getElementById("nalob").innerHTML='<option value="">Seleccionar...</option>'+Object.entries(lbs).map(([c,n])=>'<option value="'+c+'">'+c+' — '+n+'</option>').join("");
+  };
+  document.getElementById("plist").innerHTML=ps.map(p=>'<option value="'+p+'">').join("");
+}
+function rendAgList(){
+  const el=document.getElementById("agList");
+  document.getElementById("rostCnt").textContent=ROST.length+" agente"+(ROST.length!==1?"s":"");
+  if(!ROST.length){el.innerHTML='<div class="empty">Roster vacío. Carga desde Sheets o agrega manualmente.</div>';return}
+  const byC={};ROST.forEach(r=>{if(!byC[r.co])byC[r.co]=[];byC[r.co].push(r)});
+  el.innerHTML=Object.entries(byC).map(([co,ags])=>'<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px">'+co+' ('+ags.length+')</div>'
+    +ags.map(a=>'<div class="ag-row"><div class="ag-av">'+ini2(a.nm)+'</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.nm+'</div><div style="font-size:11px;color:var(--t2);margin-top:2px"><span class="mono" style="font-size:10px">#'+a.id+'</span> · '+(a.lc?'<span class="pi pg" style="font-size:9px">'+a.lc+'</span> '+a.lb:'Sin LOB')+' · '+a.ro+(a.sv?' · '+a.sv:'')+'</div></div><button class="bdd" onclick="delAg('+a.id+')">&#10005;</button></div>').join("")
+    +'</div>').join("");
+}
+async function addAg(){
+  const id=parseInt(document.getElementById("naid").value),nm=document.getElementById("nanm").value.trim().toUpperCase();
+  const co=document.getElementById("napais").value,lc=document.getElementById("nalob").value;
+  const ro=document.getElementById("narol").value,sv=document.getElementById("nasup").value.trim();
+  if(!id||!nm||!co){toast("ID, nombre y país son obligatorios");return}
+  const lb=lc?(LOBS[co]?.[lc]||lc):"";
+  const idx=ROST.findIndex(r=>r.id===id);
+  const ag={id,nm,co,lb,lc,ro,sv};
+  if(idx>=0)ROST[idx]=ag;else ROST.push(ag);
+  S.s('rost',ROST);
+  // Sincronizar con Sheets
+  await apiPost({action:"saveagent",agent:ag});
+  ["naid","nanm","nasup"].forEach(x=>document.getElementById(x).value="");
+  document.getElementById("napais").value="";document.getElementById("nalob").value="";
+  rendAgList();toast("✓ Agente "+(idx>=0?"actualizado":"agregado")+" y sincronizado");
+}
+function delAg(id){if(!confirm("¿Eliminar este agente?"))return;ROST=ROST.filter(r=>r.id!==id);S.s('rost',ROST);rendAgList();toast("Agente eliminado del roster local")}
+async function impRost(){
+  const raw=document.getElementById("csvTxt").value.trim();
+  if(!raw){toast("Pega datos CSV primero");return}
+  let ok=0,err=0;
+  raw.split("\n").forEach(line=>{
+    const p=line.split(",").map(x=>x.trim().replace(/^"|"$/g,""));
+    if(p.length<2){err++;return}
+    const id=parseInt(p[0]),nm=(p[1]||"").toUpperCase(),co=p[2]||"",lb=p[3]||"",ro=p[4]||"Agentes",sv=p[5]||"";
+    if(!id||!nm){err++;return}
+    const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
+    const idx=ROST.findIndex(r=>r.id===id);
+    const ag={id,nm,co,lb,lc,ro,sv};
+    if(idx>=0){ROST[idx]=ag}else{ROST.push(ag);ok++}
+  });
+  S.s('rost',ROST);
+  // Enviar roster completo a Sheets
+  await apiPost({action:"saveroster",roster:ROST.map(r=>[r.id,r.nm,r.co,r.lb,r.ro,r.sv])});
+  rendAgList();document.getElementById("csvTxt").value="";
+  toast("✓ "+ok+" importados, sincronizando con Sheets"+(err?" ("+err+" errores)":""));
+}
+
+// ═══ LOBs ═══════════════════════════════════════════
+function rendLobList(){
+  const el=document.getElementById("lobList");
+  const ps=Object.keys(LOBS);
+  if(!ps.length){el.innerHTML='<div class="empty" style="padding:8px">Sin países</div>';return}
+  el.innerHTML=ps.map(co=>'<div style="margin-bottom:12px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:10px 12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><strong style="font-size:13px">'+co+'</strong><button class="bdd" onclick="delPais(\''+co+'\')">Eliminar país</button></div><div>'
+    +Object.entries(LOBS[co]).map(([c,n])=>'<span class="lob-tag">'+c+' · '+n+'<button onclick="delLob(\''+co+'\',\''+c+'\')">&#215;</button></span>').join("")
+    +'</div></div>').join("");
+}
+function addLob(){
+  const co=document.getElementById("nlPais").value.trim(),cd=document.getElementById("nlCode").value.trim().toUpperCase(),nm=document.getElementById("nlName").value.trim();
+  if(!co||!cd||!nm){toast("Completa país, código y nombre");return}
+  if(!LOBS[co])LOBS[co]={};
+  if(LOBS[co][cd]){toast("Ese LOB ya existe");return}
+  LOBS[co][cd]=nm;S.s('lobs',LOBS);
+  ["nlPais","nlCode","nlName"].forEach(x=>document.getElementById(x).value="");
+  rendLobList();rendCupSels();fillAgSels();toast("✓ LOB agregado");
+}
+function delLob(co,cd){delete LOBS[co][cd];S.s('lobs',LOBS);rendLobList();rendCupSels();toast("LOB eliminado")}
+function delPais(co){if(!confirm("¿Eliminar "+co+"?"))return;delete LOBS[co];S.s('lobs',LOBS);rendLobList();rendCupSels();toast("País eliminado")}
+
+// ═══ CONFIG ══════════════════════════════════════════
+function populCfg(){
+  document.getElementById("cfT").value=CFG.title;document.getElementById("cfS").value=CFG.sub;
+  document.getElementById("cfC").value=CFG.chip;document.getElementById("cfI").value=CFG.ini;
+  document.getElementById("cfF").value=CFG.fin;document.getElementById("cfUrl").value=URL||"";
+  rendNovList();
+}
+function saveCfg(){
+  CFG.title=document.getElementById("cfT").value||"Validador de Permisos";
+  CFG.sub=document.getElementById("cfS").value||"";CFG.chip=document.getElementById("cfC").value||"ACTIVO";
+  CFG.ini=document.getElementById("cfI").value;CFG.fin=document.getElementById("cfF").value;
+  S.s('cfg',CFG);applyC();calCache={};msgEl("cfMsg","✓ Guardado","var(--gn)");
+}
+function saveUrl(){URL=document.getElementById("cfUrl").value.trim();S.s('url',URL);msgEl("cfMsg","✓ URL guardada","var(--gn)")}
+async function testUrl(){
+  const u=document.getElementById("cfUrl").value.trim();
+  const st=document.getElementById("urlSt");
+  if(!u){st.className="url-st err";st.textContent="Ingresa una URL primero";return}
+  st.className="url-st";st.style.display="block";st.textContent="Probando...";
+  try{const r=await fetch(u+"?test=1");const d=await r.json();st.className="url-st ok";st.textContent="✓ "+JSON.stringify(d).slice(0,80)}
+  catch(e){st.className="url-st err";st.textContent="✕ Error: "+e.message}
+}
+function rendNovList(){
+  const el=document.getElementById("novList");
+  if(!NOVS.length){el.innerHTML='<div class="empty" style="padding:8px">Sin novedades</div>';return}
+  el.innerHTML='<div class="tw"><table><thead><tr><th>Código</th><th>Nombre</th><th></th></tr></thead><tbody>'
+    +NOVS.map((n,i)=>'<tr><td class="mono">'+n.c+'</td><td>'+n.n+'</td><td><button class="bdd" onclick="delNov('+i+')">&#10005;</button></td></tr>').join("")
+    +'</tbody></table></div>';
+}
+function addNov(){
+  const c=document.getElementById("nnC").value.trim().toUpperCase(),n=document.getElementById("nnN").value.trim();
+  if(!c||!n){toast("Completa código y nombre");return}
+  if(NOVS.find(x=>x.c===c)){toast("Ese código ya existe");return}
+  NOVS.push({c,n});S.s('novs',NOVS);
+  document.getElementById("nnC").value="";document.getElementById("nnN").value="";
+  rendNovList();fillNovs();toast("✓ Novedad agregada");
+}
+function delNov(i){NOVS.splice(i,1);S.s('novs',NOVS);rendNovList();fillNovs();toast("Novedad eliminada")}
+function chgPwd(){
+  const p1=document.getElementById("np1").value,p2=document.getElementById("np2").value;
+  if(!p1){msgEl("pwMsg","Ingresa una contraseña","var(--rd)");return}
+  if(p1!==p2){msgEl("pwMsg","No coinciden","var(--rd)");return}
+  PWD=p1;S.s('pwd',p1);document.getElementById("np1").value="";document.getElementById("np2").value="";
+  msgEl("pwMsg","✓ Actualizada","var(--gn)");
+}
+</script>
+</body>
+</html>
