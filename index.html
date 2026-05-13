@@ -411,13 +411,25 @@ function msgEl(id,txt,col){const e=document.getElementById(id);if(!e)return;e.te
 // Solución: usar SOLO GET para todo. Las escrituras se envían como
 // parámetros GET codificados. Apps Script los procesa en doGet.
 
-async function apiGet(params){
+async function apiGet(params, timeoutMs=10000){
   if(!URL) return null;
   const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  const fullUrl=URL+'?'+qs;
+  console.log('[apiGet]', fullUrl.slice(0,120)+'...');
   try{
-    const r=await fetch(URL+'?'+qs,{cache:'no-store'});
-    return await r.json();
-  }catch(e){console.warn('apiGet err',e);return null}
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),timeoutMs);
+    const r=await fetch(fullUrl,{cache:'no-store',signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!r.ok){console.warn('[apiGet] HTTP',r.status);return null;}
+    const json=await r.json();
+    console.log('[apiGet] OK, keys:',Object.keys(json||{}));
+    return json;
+  }catch(e){
+    if(e.name==='AbortError') console.error('[apiGet] TIMEOUT después de',timeoutMs,'ms');
+    else console.error('[apiGet] ERROR:',e.message);
+    return null;
+  }
 }
 
 // Para escrituras: dividir en lotes pequeños y enviar como GET
@@ -527,7 +539,7 @@ async function initRoster(){
     // Carga falló — mostrar botón de reintento
     if(box){
       box.className="emp er";
-      box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ No se pudo conectar con Sheets. <button class="bs" style="margin-left:8px" onclick="retryRoster()">Reintentar</button></span>';
+      box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ No se pudo conectar con Sheets. <button class="bs" style="margin-left:8px" onclick="retryRoster()">🔄 Reintentar</button></span>';
     }
   } else {
     if(box) box.className = "emp";
@@ -545,7 +557,7 @@ async function retryRoster(){
   if(v) onEmp();
   else if(ROST.length===0){
     box.className="emp er";
-    box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ Sin conexión a Sheets. Verifica tu internet. <button class="bs" style="margin-left:8px" onclick="retryRoster()">Reintentar</button></span>';
+    box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ Sin conexión a Sheets. <button class="bs" style="margin-left:8px" onclick="retryRoster()">🔄 Reintentar</button> <span style="font-size:11px;color:var(--t3)">(ver F12 Console para detalles)</span></span>';
   } else {
     box.className="emp";
     box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';
