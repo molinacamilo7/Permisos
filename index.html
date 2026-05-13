@@ -474,13 +474,13 @@ function lobCodeFrom(nm){
 }
 
 // ═══ CARGAR ROSTER DESDE SHEETS ═══════════════════
-async function loadRosterFromSheets(){
-  if(!URL){toast("Configura la URL del script primero");return}
+async function loadRosterFromSheets(silent=false){
+  if(!URL){if(!silent)toast("Configura la URL del script primero");return}
   const data=await apiGet({action:"roster"});
-  if(!data||!Array.isArray(data)){toast("No se pudo cargar el roster desde Sheets");return}
+  if(!data||!Array.isArray(data)){if(!silent)toast("No se pudo cargar el roster desde Sheets");return}
   // data es array de arrays: [ID, Nombre, País, LOB, Rol, Supervisor]
   const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
-  const header=rows[0];
+  if(!rows.length) return;
   // Detectar si tiene cabecera (primera celda es texto no numérico)
   const start=isNaN(parseInt(rows[0][0]))?1:0;
   ROST=rows.slice(start).map(r=>{
@@ -489,13 +489,27 @@ async function loadRosterFromSheets(){
     return {id,nm,co,lb,lc,ro,sv};
   }).filter(r=>r.id&&r.nm);
   S.s('rost',ROST);
-  rendAgList();
-  toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+  if(isAdm) rendAgList();
+  if(!silent) toast("✓ "+ROST.length+" agentes cargados desde Sheets");
 }
 
 // Siempre sincronizar roster desde Sheets al cargar la página
+let rosterReady = false;
 async function initRoster(){
-  await loadRosterFromSheets();
+  // Mostrar aviso de carga en el empBox si está vacío
+  const box = document.getElementById("empBox");
+  if(box && !document.getElementById("eId").value){
+    box.innerHTML = '<span class="emp-hint"><span class="spindark"></span> Cargando roster...</span>';
+  }
+  await loadRosterFromSheets(true);
+  rosterReady = true;
+  // Si el usuario ya escribió su ID antes de que cargara, re-evaluar
+  const v = document.getElementById("eId").value.trim();
+  if(v) onEmp();
+  else {
+    if(box) box.className = "emp";
+    if(box) box.innerHTML = '<span class="emp-hint">Ingresa tu ID para continuar</span>';
+  }
 }
 
 applyC(); fillNovs();
@@ -513,7 +527,16 @@ function onEmp(){
   document.getElementById("okArea").style.display="none";
   if(!v){box.className="emp";box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';return}
   const e=ROST.find(r=>String(r.id)===v);
-  if(!e){box.className="emp er";box.innerHTML='<span class="emp-hint" style="color:var(--rd)">ID no encontrado. Si eres nuevo, pide al administrador que actualice el roster.</span>';return}
+  if(!e){
+    if(!rosterReady){
+      box.className="emp";
+      box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Cargando roster, espera un momento...</span>';
+      return;
+    }
+    box.className="emp er";
+    box.innerHTML='<span class="emp-hint" style="color:var(--rd)">ID no encontrado. Si eres nuevo, pide al administrador que actualice el roster.</span>';
+    return;
+  }
   curE=e;
   box.className="emp ok";
   box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm">'+e.nm+'</div><div class="emp-pp">'
