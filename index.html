@@ -475,22 +475,37 @@ function lobCodeFrom(nm){
 
 // ═══ CARGAR ROSTER DESDE SHEETS ═══════════════════
 async function loadRosterFromSheets(silent=false){
-  if(!URL){if(!silent)toast("Configura la URL del script primero");return}
-  const data=await apiGet({action:"roster"});
-  if(!data||!Array.isArray(data)){if(!silent)toast("No se pudo cargar el roster desde Sheets");return}
-  // data es array de arrays: [ID, Nombre, País, LOB, Rol, Supervisor]
-  const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
-  if(!rows.length) return;
-  // Detectar si tiene cabecera (primera celda es texto no numérico)
-  const start=isNaN(parseInt(rows[0][0]))?1:0;
-  ROST=rows.slice(start).map(r=>{
-    const id=parseInt(r[0]),nm=String(r[1]||"").toUpperCase(),co=String(r[2]||""),lb=String(r[3]||""),ro=String(r[4]||"Agentes"),sv=String(r[5]||"");
-    const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
-    return {id,nm,co,lb,lc,ro,sv};
-  }).filter(r=>r.id&&r.nm);
-  S.s('rost',ROST);
-  if(isAdm) rendAgList();
-  if(!silent) toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+  console.log('[Roster] Iniciando carga desde Sheets...');
+  if(!URL){
+    console.warn('[Roster] Sin URL configurada');
+    if(!silent)toast("Configura la URL del script primero");
+    return;
+  }
+  try{
+    const data=await apiGet({action:"roster"});
+    console.log('[Roster] Respuesta recibida:', data ? 'OK ('+( Array.isArray(data)?data.length:'no-array')+' filas)' : 'null');
+    if(!data||!Array.isArray(data)){
+      console.warn('[Roster] Respuesta inválida:', data);
+      if(!silent)toast("No se pudo cargar el roster desde Sheets");
+      return;
+    }
+    const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
+    if(!rows.length){console.warn('[Roster] Sin filas válidas');return;}
+    // Detectar si tiene cabecera (primera celda es texto no numérico)
+    const start=isNaN(parseInt(rows[0][0]))?1:0;
+    ROST=rows.slice(start).map(r=>{
+      const id=parseInt(r[0]),nm=String(r[1]||"").toUpperCase(),co=String(r[2]||""),lb=String(r[3]||""),ro=String(r[4]||"Agentes"),sv=String(r[5]||"");
+      const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
+      return {id,nm,co,lb,lc,ro,sv};
+    }).filter(r=>r.id&&r.nm);
+    S.s('rost',ROST);
+    console.log('[Roster] ✓ Cargados '+ROST.length+' agentes');
+    if(isAdm) rendAgList();
+    if(!silent) toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+  }catch(err){
+    console.error('[Roster] Error:', err);
+    if(!silent)toast("Error cargando roster: "+err.message);
+  }
 }
 
 // Siempre sincronizar roster desde Sheets al cargar la página
@@ -498,17 +513,43 @@ let rosterReady = false;
 async function initRoster(){
   // Mostrar aviso de carga en el empBox si está vacío
   const box = document.getElementById("empBox");
-  if(box && !document.getElementById("eId").value){
-    box.innerHTML = '<span class="emp-hint"><span class="spindark"></span> Cargando roster...</span>';
+  const idVal = document.getElementById("eId").value.trim();
+  if(box && !idVal){
+    box.innerHTML = '<span class="emp-hint"><span class="spindark"></span> Conectando con Google Sheets...</span>';
   }
   await loadRosterFromSheets(true);
   rosterReady = true;
   // Si el usuario ya escribió su ID antes de que cargara, re-evaluar
   const v = document.getElementById("eId").value.trim();
-  if(v) onEmp();
-  else {
+  if(v){
+    onEmp();
+  } else if(ROST.length===0){
+    // Carga falló — mostrar botón de reintento
+    if(box){
+      box.className="emp er";
+      box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ No se pudo conectar con Sheets. <button class="bs" style="margin-left:8px" onclick="retryRoster()">Reintentar</button></span>';
+    }
+  } else {
     if(box) box.className = "emp";
     if(box) box.innerHTML = '<span class="emp-hint">Ingresa tu ID para continuar</span>';
+  }
+}
+
+async function retryRoster(){
+  const box=document.getElementById("empBox");
+  if(box) box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Reintentando conexión...</span>';
+  rosterReady=false;
+  await loadRosterFromSheets(true);
+  rosterReady=true;
+  const v=document.getElementById("eId").value.trim();
+  if(v) onEmp();
+  else if(ROST.length===0){
+    box.className="emp er";
+    box.innerHTML='<span class="emp-hint" style="color:var(--am)">⚠ Sin conexión a Sheets. Verifica tu internet. <button class="bs" style="margin-left:8px" onclick="retryRoster()">Reintentar</button></span>';
+  } else {
+    box.className="emp";
+    box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';
+    toast("✓ "+ROST.length+" agentes cargados");
   }
 }
 
