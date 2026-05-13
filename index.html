@@ -378,7 +378,7 @@ let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"C
 let SEMS = S.g('sems') || [{n:23,d:"2026-06-01"},{n:24,d:"2026-06-08"},{n:25,d:"2026-06-15"},{n:26,d:"2026-06-22"},{n:27,d:"2026-06-29"}];
 let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"}];
 let PWD  = S.g('pwd')  || 'admin123';
-let URL  = S.g('url')  || '';
+let URL  = S.g('url')  || 'https://script.google.com/macros/s/AKfycbx1nCX-OLwZuMMW1eBYVmQgOFIFZ3X5oSBuXAhiQLjfVGOMWAVd2CmBfsAnKRgHNwHtug/exec';
 
 // Roster: se carga desde Sheets, se cachea local
 let ROST = S.g('rost') || [];
@@ -493,9 +493,8 @@ async function loadRosterFromSheets(){
   toast("✓ "+ROST.length+" agentes cargados desde Sheets");
 }
 
-// Si ya tenemos roster en caché local, usarlo; si no, intentar cargar
+// Siempre sincronizar roster desde Sheets al cargar la página
 async function initRoster(){
-  if(ROST.length) return; // ya tenemos caché
   await loadRosterFromSheets();
 }
 
