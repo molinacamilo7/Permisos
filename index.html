@@ -152,11 +152,11 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
   </div>
 </div>
 
-<!-- MODAL CERTIFICADO ELECTORAL -->
+<!-- CERTIFICADO ELECTORAL -->
 <div class="ov" id="ovCert">
   <div class="lbx" style="max-width:420px">
     <h2>&#128393; Certificado Electoral</h2>
-    <p>Registra tu certificado de votaci&#243;n para obtener las horas de permiso correspondientes.</p>
+    <p>Registra tu certificado de votaci&#243;n para las horas de permiso.</p>
     <div class="fld" style="margin-bottom:10px">
       <label>ID Empleado</label>
       <input type="text" id="certId" placeholder="Ej: 10837" inputmode="numeric" oninput="onCertId()">
@@ -166,34 +166,31 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
       <div class="fld" style="margin-bottom:10px">
         <label>Certificado (foto o PDF)</label>
         <label style="display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);cursor:pointer;font-size:13px;color:var(--t2)">
-          <span id="certFileName">&#128194; Seleccionar archivo...</span>
+          <span id="certFileName">&#128194; Seleccionar...</span>
           <input type="file" id="certFile" accept="image/*,.pdf" style="display:none" onchange="onCertFile(this)">
         </label>
       </div>
       <div id="certPreview" style="display:none;margin-bottom:10px;text-align:center">
-        <img id="certImg" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--bd)" src="">
+        <img id="certImg" style="max-width:100%;max-height:150px;border-radius:8px" src="">
       </div>
     </div>
-    <div id="certMsg" style="font-size:12px;margin-bottom:8px;min-height:18px"></div>
+    <div id="certMsg" style="font-size:12px;margin-bottom:8px;min-height:16px"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn bp" id="btnCertSend" onclick="enviarCertificado()" style="display:none">Registrar certificado</button>
-      <button class="bs" style="flex:1" onclick="closeCert()">Cancelar</button>
+      <button class="btn bp" id="btnCertSend" onclick="enviarCertificado()" style="display:none">Registrar</button>
+      <button class="bs" style="flex:1" onclick="document.getElementById('ovCert').classList.remove('show')">Cancelar</button>
     </div>
     <div id="certOkArea" style="display:none;margin-top:10px">
       <div class="bn ok"><div class="bi">&#10003;</div><div><div class="bt">Certificado registrado</div><div class="bd2" id="certOkMsg"></div></div></div>
-      <button class="bs" style="margin-top:6px;width:100%" onclick="closeCert()">Cerrar</button>
+      <button class="bs" style="margin-top:6px;width:100%" onclick="document.getElementById('ovCert').classList.remove('show')">Cerrar</button>
     </div>
   </div>
 </div>
-
 <div class="bar">
   <div class="bar-l">
     <div class="bar-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h2m-2 4h4"/></svg></div>
     <div><div class="bar-title" id="bTitle">Validador de Permisos</div><div class="bar-sub" id="bSub">Colombia &amp; Panam&#225;</div></div>
   </div>
-  <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span>
-    <button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button>
-  </div>
+  <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span><button class="bar-btn" onclick="document.getElementById('ovCert').classList.add('show')" style="font-size:11px;padding:4px 9px">&#128393;</button><button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button></div>
 </div>
 
 <div class="main">
@@ -224,13 +221,13 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
       <div class="sel-txt" id="selTxt">Selecciona la fecha de inicio</div>
     </div>
   </div>
-  <!-- ÁREA CERTIFICADO INLINE (para JURVOT y HRSVOT) -->
+  <!-- CERTIFICADO INLINE JURVOT/HRSVOT -->
   <div id="certInlineArea" style="display:none">
     <div class="card">
       <div class="hd"><span class="hd-lbl">Subir certificado electoral</span><div class="hd-ln"></div></div>
       <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.65">
-        Para registrar tu permiso por votaci&#243;n debes subir tu certificado electoral.<br>
-        El archivo quedar&#225; guardado en Google Drive y registrado en el sistema.
+        Para registrar tu permiso por votaci&#243;n debes subir tu certificado.<br>
+        Queda guardado en Google Drive y registrado en el sistema.
       </div>
       <div class="fld" style="margin-bottom:12px">
         <label>Certificado (foto o PDF)</label>
@@ -240,13 +237,12 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
         </label>
       </div>
       <div id="certInlinePreview" style="display:none;margin-bottom:12px;text-align:center">
-        <img id="certInlineImg" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--bd)" src="">
+        <img id="certInlineImg" style="max-width:100%;max-height:180px;border-radius:8px" src="">
       </div>
-      <div id="certInlineMsg" style="font-size:12px;margin-bottom:8px;min-height:18px"></div>
+      <div id="certInlineMsg" style="font-size:12px;margin-bottom:8px;min-height:16px"></div>
       <button class="btn bp" id="btnCertInline" onclick="enviarCertInline()" style="display:none">Registrar certificado y solicitud</button>
     </div>
   </div>
-
   <div id="subArea" style="display:none">
     <div class="bn in" id="subBn"><div class="bi">i</div><div><div class="bt">Resumen de solicitud</div><div class="bd2" id="subMsg"></div></div></div>
     <button class="btn bp" id="btnSub" onclick="doSub()">Enviar solicitud de permiso</button>
@@ -432,10 +428,10 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
 const S={g:k=>{try{return JSON.parse(localStorage.getItem('vp_'+k))}catch(e){return null}},s:(k,v)=>localStorage.setItem('vp_'+k,JSON.stringify(v))};
 
 // Config local (título, fechas, LOBs, semanas, novedades, contraseña)
-let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'ACTIVO',ini:'2026-06-01',fin:'2026-06-30'};
+let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'JULIO 2026',ini:'2026-07-01',fin:'2026-07-31'};
 let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"},"Panama":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"}};
 let SEMS = S.g('sems') || [{n:27,d:"2026-06-29"},{n:28,d:"2026-07-06"},{n:29,d:"2026-07-13"},{n:30,d:"2026-07-20"},{n:31,d:"2026-07-27"}];
-let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"},{c:"JURVOT",n:"Día por jurado de votación"},{c:"HRSVOT",n:"Hrs. por votación"}];
+let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"},{c:"JURVOT",n:"Día jurado votación"},{c:"HRSVOT",n:"Hrs. por votación"}];
 let PWD  = S.g('pwd')  || 'admin123';
 let URL  = S.g('url')  || '';
 
@@ -484,25 +480,10 @@ async function apiGet(params){
 async function apiPost(data){
   if(!URL) return false;
   try{
-    if(data.action==='savecupos'&&data.rows&&data.rows.length>0){
-      // Enviar en lotes de 20 filas
-      const BATCH=20;
-      for(let i=0;i<data.rows.length;i+=BATCH){
-        const batch={action:'savecupos',rows:data.rows.slice(i,i+BATCH)};
-        const qs='write='+encodeURIComponent(JSON.stringify(batch));
-        const r=await fetch(URL+'?'+qs,{cache:'no-store'});
-        const res=await r.json();
-        console.log('Batch '+(i/BATCH+1)+':',res);
-        if(!res||res.error) return false;
-      }
-      return true;
-    }
-    // Para otras escrituras (solicitud, saveroster, saveagent)
     const qs='write='+encodeURIComponent(JSON.stringify(data));
     const r=await fetch(URL+'?'+qs,{cache:'no-store'});
     const res=await r.json();
-    console.log('apiPost result:',res);
-    return res&&res.status==='ok';
+    return res&&(res.status==='ok'||res.inserted||res.updated);
   }catch(e){console.warn('apiPost err',e);return false}
 }
 
@@ -559,35 +540,7 @@ async function initRoster(){
 }
 
 applyC(); fillNovs();
-initRoster();
-
-// Guardar config en Sheets cuando admin hace cambios
-async function saveConfigToSheets(){
-  if(!URL) return;
-  try{
-    await apiPost({action:'saveconfig',config:{
-      sems:JSON.stringify(SEMS),
-      novs:JSON.stringify(NOVS),
-      cfg:JSON.stringify(CFG)
-    }});
-    console.log('Config guardada en Sheets');
-  }catch(e){console.warn('saveConfig err:',e)}
-}
-
-// Cargar config global desde Sheets al iniciar
-async function initConfig(){
-  if(!URL) return;
-  try{
-    const data=await apiGet({action:'config'});
-    if(!data||Object.keys(data).length===0) return;
-    if(data.sems){try{const s=JSON.parse(data.sems);if(Array.isArray(s)&&s.length){SEMS=s;S.s('sems',SEMS);}}catch(e){}}
-    if(data.novs){try{const n=JSON.parse(data.novs);if(Array.isArray(n)&&n.length){NOVS=n;S.s('novs',NOVS);}}catch(e){}}
-    if(data.cfg){try{const c=JSON.parse(data.cfg);if(c&&c.title){CFG=c;S.s('cfg',CFG);}}catch(e){}}
-    applyC();fillNovs();
-    console.log('Config cargada desde Sheets');
-  }catch(e){console.warn('initConfig err:',e)}
-}
-initConfig();
+initRoster(); // cargar roster al iniciar
 
 // ═══ AGENTE ═══════════════════════════════════════
 let curE=null,selA=null,selB=null,selSt=0;
@@ -617,13 +570,11 @@ function onNov(){
   if(!curE)return;
   const nov=document.getElementById("sNov").value;
   if(!nov)return;
-  // JURVOT y HRSVOT: mostrar upload de certificado en lugar del calendario
   if(nov==="JURVOT"||nov==="HRSVOT"){
     document.getElementById("calCard").style.display="none";
     document.getElementById("subArea").style.display="none";
     document.getElementById("certInlineArea").style.display="block";
-    prepCertInline();
-    return;
+    prepCertInline();return;
   }
   document.getElementById("certInlineArea").style.display="none";
   if(!curE.lc){document.getElementById("calCard").style.display="none";return}
@@ -1198,10 +1149,9 @@ function saveCfg(){
   CFG.title=document.getElementById("cfT").value||"Validador de Permisos";
   CFG.sub=document.getElementById("cfS").value||"";CFG.chip=document.getElementById("cfC").value||"ACTIVO";
   CFG.ini=document.getElementById("cfI").value;CFG.fin=document.getElementById("cfF").value;
-  S.s('cfg',CFG);applyC();calCache={};msgEl("cfMsg","✓ Guardado","var(--gn)");
-  saveConfigToSheets();
+  S.s('cfg',CFG);applyC();calCache={};msgEl("cfMsg","✓ Guardado","var(--gn)");saveConfigToSheets();
 }
-function saveUrl(){URL=document.getElementById("cfUrl").value.trim();S.s('url',URL);msgEl("cfMsg","✓ URL guardada","var(--gn)")}
+function saveUrl(){URL=document.getElementById("cfUrl").value.trim();S.s('url',URL);msgEl("cfMsg","✓ URL guardada","var(--gn)");saveConfigToSheets();}
 async function testUrl(){
   const u=document.getElementById("cfUrl").value.trim();
   const st=document.getElementById("urlSt");
@@ -1221,9 +1171,9 @@ function addNov(){
   const c=document.getElementById("nnC").value.trim().toUpperCase(),n=document.getElementById("nnN").value.trim();
   if(!c||!n){toast("Completa código y nombre");return}
   if(NOVS.find(x=>x.c===c)){toast("Ese código ya existe");return}
-  NOVS.push({c,n});S.s('novs',NOVS);
+  NOVS.push({c,n});S.s('novs',NOVS);saveConfigToSheets();
   document.getElementById("nnC").value="";document.getElementById("nnN").value="";
-  saveConfigToSheets();rendNovList();fillNovs();toast("✓ Novedad agregada");
+  rendNovList();fillNovs();toast("✓ Novedad agregada");
 }
 function delNov(i){NOVS.splice(i,1);S.s('novs',NOVS);saveConfigToSheets();rendNovList();fillNovs();toast("Novedad eliminada")}
 function chgPwd(){
@@ -1233,181 +1183,96 @@ function chgPwd(){
   PWD=p1;S.s('pwd',p1);document.getElementById("np1").value="";document.getElementById("np2").value="";
   msgEl("pwMsg","✓ Actualizada","var(--gn)");
 }
-// ═══ CERTIFICADO ELECTORAL ════════════════════════════════
-let certEmp = null, certFileData = null, certFileType = null, certFileNameStr = null;
-
-function showCert(){
-  document.getElementById('ovCert').classList.add('show');
-  certEmp=null; certFileData=null;
-  document.getElementById('certId').value='';
-  document.getElementById('certEmpBox').className='emp';
-  document.getElementById('certEmpBox').innerHTML='<span class="emp-hint" style="font-size:12px">Ingresa tu ID para continuar</span>';
-  document.getElementById('certUploadArea').style.display='none';
-  document.getElementById('certFileName').textContent='\u{1F4C2} Seleccionar archivo...';
-  document.getElementById('certPreview').style.display='none';
-  document.getElementById('certMsg').textContent='';
-  document.getElementById('btnCertSend').style.display='none';
-  document.getElementById('certOkArea').style.display='none';
-  setTimeout(()=>document.getElementById('certId').focus(),80);
+// ═══ CONFIG GLOBAL DESDE SHEETS ══════════════
+async function saveConfigToSheets(){
+  if(!URL) return;
+  try{ await apiPost({action:'saveconfig',config:{sems:JSON.stringify(SEMS),novs:JSON.stringify(NOVS),cfg:JSON.stringify(CFG),url:URL}}); }
+  catch(e){console.warn('saveConfig:',e)}
 }
-function closeCert(){
-  document.getElementById('ovCert').classList.remove('show');
+async function initConfig(){
+  if(!URL) return;
+  try{
+    const data=await apiGet({action:'config'});
+    if(!data||!Object.keys(data).length) return;
+    if(data.sems){try{const s=JSON.parse(data.sems);if(Array.isArray(s)&&s.length){SEMS=s;S.s('sems',SEMS);}}catch(e){}}
+    if(data.novs){try{const n=JSON.parse(data.novs);if(Array.isArray(n)&&n.length){NOVS=n;S.s('novs',NOVS);}}catch(e){}}
+    if(data.cfg){try{const c=JSON.parse(data.cfg);if(c&&c.title){CFG=c;S.s('cfg',CFG);}}catch(e){}}
+    if(data.url&&data.url.startsWith('https://')&&!URL){URL=data.url;S.s('url',URL);}
+    applyC();fillNovs();
+  }catch(e){console.warn('initConfig:',e)}
 }
+initConfig();
 
+// ═══ CERTIFICADO MODAL ═══════════════════════
+let certEmp=null,certFD=null,certFT=null,certFN=null;
 function onCertId(){
   const v=document.getElementById('certId').value.trim();
   const box=document.getElementById('certEmpBox');
-  certEmp=null;
-  document.getElementById('certUploadArea').style.display='none';
-  document.getElementById('btnCertSend').style.display='none';
-  if(!v){box.className='emp';box.innerHTML='<span class="emp-hint" style="font-size:12px">Ingresa tu ID para continuar</span>';return}
+  certEmp=null;document.getElementById('certUploadArea').style.display='none';document.getElementById('btnCertSend').style.display='none';
+  if(!v){box.className='emp';box.innerHTML='<span class="emp-hint" style="font-size:12px">Ingresa tu ID</span>';return}
   const e=ROST.find(r=>String(r.id)===v);
   if(!e){box.className='emp er';box.innerHTML='<span class="emp-hint" style="color:var(--rd);font-size:12px">ID no encontrado</span>';return}
-  certEmp=e;
-  box.className='emp ok';
+  certEmp=e;box.className='emp ok';
   box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm" style="font-size:13px">'+e.nm+'</div><div class="emp-pp"><span class="pi pb">'+e.co+'</span><span class="pi pg">'+e.lc+' · '+e.lb+'</span></div></div>';
   document.getElementById('certUploadArea').style.display='block';
 }
-
 function onCertFile(input){
   if(!input.files||!input.files[0]) return;
-  const file=input.files[0];
-  certFileNameStr=file.name;
-  certFileType=file.type;
-  document.getElementById('certFileName').textContent='\u{1F4C4} '+file.name;
-  // Preview si es imagen
-  const prev=document.getElementById('certPreview');
-  const img=document.getElementById('certImg');
-  if(file.type.startsWith('image/')){
-    const reader=new FileReader();
-    reader.onload=e=>{img.src=e.target.result;prev.style.display='block'};
-    reader.readAsDataURL(file);
-  } else {
-    prev.style.display='none';
-  }
-  // Leer como base64 para enviar
-  const reader2=new FileReader();
-  reader2.onload=e=>{
-    certFileData=e.target.result.split(',')[1]; // base64 sin prefix
-    document.getElementById('btnCertSend').style.display='flex';
-  };
-  reader2.readAsDataURL(file);
+  const file=input.files[0];certFN=file.name;certFT=file.type;
+  document.getElementById('certFileName').textContent=file.name;
+  if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certImg').src=e.target.result;document.getElementById('certPreview').style.display='block'};r.readAsDataURL(file);}
+  const r2=new FileReader();r2.onload=e=>{certFD=e.target.result.split(',')[1];document.getElementById('btnCertSend').style.display='flex';};r2.readAsDataURL(file);
 }
-
 async function enviarCertificado(){
-  if(!certEmp||!certFileData){toast('Completa el ID y selecciona el archivo');return}
-  const btn=document.getElementById('btnCertSend');
-  const msg=document.getElementById('certMsg');
+  if(!certEmp||!certFD){toast('Completa el ID y selecciona el archivo');return}
+  const btn=document.getElementById('btnCertSend'),msg=document.getElementById('certMsg');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Subiendo...';
-  msg.textContent='Subiendo a Google Drive...';msg.style.color='var(--t2)';
-
-  const payload={
-    action:'savecertificado',
-    id:certEmp.id, name:certEmp.nm, country:certEmp.co,
-    lob:certEmp.lb, lobCode:certEmp.lc, supervisor:certEmp.sv||'',
-    fileName:certFileNameStr, fileType:certFileType,
-    fileData:certFileData,
-    ts:new Date().toISOString()
-  };
-
-  // El archivo base64 puede ser grande — enviar por POST no-cors
-  // El Apps Script lo recibe en doPost
-  let ok2=false;
-  try{
-    await fetch(URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload)
-    });
-    ok2=true;
-  }catch(e){console.warn('cert upload err:',e)}
-
-  btn.disabled=false;btn.innerHTML='Registrar certificado';
-  msg.textContent='';
-
-  if(ok2){
-    document.getElementById('btnCertSend').style.display='none';
-    document.getElementById('certUploadArea').style.display='none';
-    document.getElementById('certOkArea').style.display='block';
-    document.getElementById('certOkMsg').innerHTML='<strong>'+certEmp.nm+'</strong> · Certificado registrado y guardado en Drive';
-    toast('\u2713 Certificado registrado');
-  } else {
-    msg.textContent='Error al subir. Verifica la conexión.';msg.style.color='var(--rd)';
-  }
+  const ok2=await uploadCert({id:certEmp.id,name:certEmp.nm,country:certEmp.co,lob:certEmp.lb,lobCode:certEmp.lc,supervisor:certEmp.sv||'',fileName:certFN,fileType:certFT,fileData:certFD,ts:new Date().toISOString()},msg);
+  btn.disabled=false;btn.innerHTML='Registrar';
+  if(ok2){document.getElementById('btnCertSend').style.display='none';document.getElementById('certUploadArea').style.display='none';document.getElementById('certOkArea').style.display='block';document.getElementById('certOkMsg').innerHTML='<strong>'+certEmp.nm+'</strong> · Guardado en Drive';toast('✓ Certificado registrado');}
 }
 
-// ═══ CERTIFICADO INLINE (JURVOT / HRSVOT) ═══════════════
-let certInlineFileData=null, certInlineFileType=null, certInlineFileName2=null;
-
-function prepCertInline(){
-  certInlineFileData=null;
-  document.getElementById('certInlineFileName').textContent='\u{1F4C2} Seleccionar archivo...';
-  document.getElementById('certInlinePreview').style.display='none';
-  document.getElementById('certInlineMsg').textContent='';
-  document.getElementById('btnCertInline').style.display='none';
-}
-
+// ═══ CERTIFICADO INLINE (JURVOT/HRSVOT) ══════
+let certIFD=null,certIFT=null,certIFN=null;
+function prepCertInline(){certIFD=null;document.getElementById('certInlineFileName').textContent='Seleccionar archivo...';document.getElementById('certInlinePreview').style.display='none';document.getElementById('certInlineMsg').textContent='';document.getElementById('btnCertInline').style.display='none';}
 function onCertInlineFile(input){
   if(!input.files||!input.files[0]) return;
-  const file=input.files[0];
-  certInlineFileName2=file.name;
-  certInlineFileType=file.type;
-  document.getElementById('certInlineFileName').textContent='\u{1F4C4} '+file.name;
-  if(file.type.startsWith('image/')){
-    const r=new FileReader();
-    r.onload=e=>{
-      document.getElementById('certInlineImg').src=e.target.result;
-      document.getElementById('certInlinePreview').style.display='block';
-    };
-    r.readAsDataURL(file);
-  }
-  const r2=new FileReader();
-  r2.onload=e=>{
-    certInlineFileData=e.target.result.split(',')[1];
-    document.getElementById('btnCertInline').style.display='flex';
-  };
-  r2.readAsDataURL(file);
+  const file=input.files[0];certIFN=file.name;certIFT=file.type;
+  document.getElementById('certInlineFileName').textContent=file.name;
+  if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certInlineImg').src=e.target.result;document.getElementById('certInlinePreview').style.display='block'};r.readAsDataURL(file);}
+  const r2=new FileReader();r2.onload=e=>{certIFD=e.target.result.split(',')[1];document.getElementById('btnCertInline').style.display='flex';};r2.readAsDataURL(file);
 }
-
 async function enviarCertInline(){
-  if(!curE||!certInlineFileData){toast('Selecciona el archivo primero');return}
+  if(!curE||!certIFD){toast('Selecciona el archivo primero');return}
   const nov=document.getElementById('sNov').value;
   const nn=NOVS.find(x=>x.c===nov)?.n||nov;
-  const btn=document.getElementById('btnCertInline');
-  const msg=document.getElementById('certInlineMsg');
+  const btn=document.getElementById('btnCertInline'),msg=document.getElementById('certInlineMsg');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Registrando...';
-  msg.textContent='Subiendo certificado a Drive...';msg.style.color='var(--t2)';
-
-  const payload={
-    action:'savecertificado',
-    id:curE.id,name:curE.nm,country:curE.co,
-    lob:curE.lb,lobCode:curE.lc,supervisor:curE.sv||'',
-    nov,novName:nn,
-    fileName:certInlineFileName2,fileType:certInlineFileType,
-    fileData:certInlineFileData,
-    ts:new Date().toISOString()
-  };
-
-  let ok2=false;
-  try{
-    await fetch(URL,{method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload)});
-    ok2=true;
-  }catch(e){console.warn('cert err:',e)}
-
+  const ok2=await uploadCert({id:curE.id,name:curE.nm,country:curE.co,lob:curE.lb,lobCode:curE.lc,supervisor:curE.sv||'',nov,novName:nn,fileName:certIFN,fileType:certIFT,fileData:certIFD,ts:new Date().toISOString()},msg);
   btn.disabled=false;btn.innerHTML='Registrar certificado y solicitud';
-  msg.textContent='';
+  if(ok2){document.getElementById('certInlineArea').style.display='none';document.getElementById('okArea').style.display='block';document.getElementById('okMsg').innerHTML='<strong>'+curE.nm+'</strong> · '+nn+' ✓ Certificado guardado en Drive';toast('✓ Certificado registrado');}
+}
 
-  if(ok2){
-    document.getElementById('certInlineArea').style.display='none';
-    document.getElementById('okArea').style.display='block';
-    document.getElementById('okMsg').innerHTML='<strong>'+curE.nm+'</strong> · '+nn+' ✓ Certificado registrado en Drive';
-    toast('✓ Certificado registrado');
-  } else {
-    msg.textContent='Error al subir. Verifica la conexión.';msg.style.color='var(--rd)';
-  }
+// ═══ UPLOAD CERT (chunks via GET) ════════════
+async function uploadCert(data,msg){
+  if(!URL){if(msg){msg.textContent='Sin URL del script configurada';msg.style.color='var(--rd)';}return false;}
+  const CHUNK=800,chunks=[];
+  for(let i=0;i<data.fileData.length;i+=CHUNK) chunks.push(data.fileData.slice(i,i+CHUNK));
+  const uid=Date.now().toString(36);
+  try{
+    const meta={...data,action:'certstart',uploadId:uid,totalChunks:chunks.length};
+    delete meta.fileData;
+    const r0=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify(meta)),{cache:'no-store'})).json();
+    if(r0.error) throw new Error(r0.error);
+    for(let i=0;i<chunks.length;i++){
+      if(msg) msg.textContent='Subiendo '+(i+1)+'/'+chunks.length+'...';
+      const rc=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify({action:'certchunk',uploadId:uid,chunkIndex:i,data:chunks[i]})),{cache:'no-store'})).json();
+      if(rc.error) throw new Error(rc.error);
+    }
+    const rf=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify({action:'certfinish',uploadId:uid})),{cache:'no-store'})).json();
+    if(rf.error) throw new Error(rf.error);
+    return true;
+  }catch(e){if(msg){msg.textContent='Error: '+e.message;msg.style.color='var(--rd)';}return false;}
 }
 
 </script>
