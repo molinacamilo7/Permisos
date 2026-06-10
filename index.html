@@ -376,7 +376,7 @@ const S={g:k=>{try{return JSON.parse(localStorage.getItem('vp_'+k))}catch(e){ret
 let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'ACTIVO',ini:'2026-06-01',fin:'2026-06-30'};
 let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"},"Panama":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"}};
 let SEMS = S.g('sems') || [{n:28,d:"2026-06-29"},{n:29,d:"2026-07-06"},{n:30,d:"2026-07-13"},{n:31,d:"2026-07-20"},{n32,d:"2026-07-27"}];
-let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"}];
+let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"},{c:"JURVOT",n:"Dia. por jurado de votación"},{c:"HRSVOT",n:"Hrs. por votación"}];
 let PWD  = S.g('pwd')  || 'admin123';
 let URL  = S.g('url')  || 'https://script.google.com/macros/s/AKfycbx1nCX-OLwZuMMW1eBYVmQgOFIFZ3X5oSBuXAhiQLjfVGOMWAVd2CmBfsAnKRgHNwHtug/exec';
 
