@@ -192,7 +192,6 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
     <div><div class="bar-title" id="bTitle">Validador de Permisos</div><div class="bar-sub" id="bSub">Colombia &amp; Panam&#225;</div></div>
   </div>
   <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span>
-    <button class="bar-btn" id="btnCert" onclick="showCert()" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25)">&#128393; Certificado Electoral</button>
     <button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button>
   </div>
 </div>
@@ -225,6 +224,29 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
       <div class="sel-txt" id="selTxt">Selecciona la fecha de inicio</div>
     </div>
   </div>
+  <!-- ÁREA CERTIFICADO INLINE (para JURVOT y HRSVOT) -->
+  <div id="certInlineArea" style="display:none">
+    <div class="card">
+      <div class="hd"><span class="hd-lbl">Subir certificado electoral</span><div class="hd-ln"></div></div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.65">
+        Para registrar tu permiso por votaci&#243;n debes subir tu certificado electoral.<br>
+        El archivo quedar&#225; guardado en Google Drive y registrado en el sistema.
+      </div>
+      <div class="fld" style="margin-bottom:12px">
+        <label>Certificado (foto o PDF)</label>
+        <label style="display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);cursor:pointer;font-size:13px;color:var(--t2)">
+          <span id="certInlineFileName">&#128194; Seleccionar archivo...</span>
+          <input type="file" id="certInlineFile" accept="image/*,.pdf" style="display:none" onchange="onCertInlineFile(this)">
+        </label>
+      </div>
+      <div id="certInlinePreview" style="display:none;margin-bottom:12px;text-align:center">
+        <img id="certInlineImg" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--bd)" src="">
+      </div>
+      <div id="certInlineMsg" style="font-size:12px;margin-bottom:8px;min-height:18px"></div>
+      <button class="btn bp" id="btnCertInline" onclick="enviarCertInline()" style="display:none">Registrar certificado y solicitud</button>
+    </div>
+  </div>
+
   <div id="subArea" style="display:none">
     <div class="bn in" id="subBn"><div class="bi">i</div><div><div class="bt">Resumen de solicitud</div><div class="bd2" id="subMsg"></div></div></div>
     <button class="btn bp" id="btnSub" onclick="doSub()">Enviar solicitud de permiso</button>
@@ -413,7 +435,7 @@ const S={g:k=>{try{return JSON.parse(localStorage.getItem('vp_'+k))}catch(e){ret
 let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'ACTIVO',ini:'2026-06-01',fin:'2026-06-30'};
 let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"},"Panama":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"}};
 let SEMS = S.g('sems') || [{n:27,d:"2026-06-29"},{n:28,d:"2026-07-06"},{n:29,d:"2026-07-13"},{n:30,d:"2026-07-20"},{n:31,d:"2026-07-27"}];
-let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"}];
+let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"},{c:"JURVOT",n:"Día por jurado de votación"},{c:"HRSVOT",n:"Hrs. por votación"}];
 let PWD  = S.g('pwd')  || 'admin123';
 let URL  = S.g('url')  || '';
 
@@ -593,7 +615,17 @@ function onEmp(){
 
 function onNov(){
   if(!curE)return;
-  if(!document.getElementById("sNov").value)return;
+  const nov=document.getElementById("sNov").value;
+  if(!nov)return;
+  // JURVOT y HRSVOT: mostrar upload de certificado en lugar del calendario
+  if(nov==="JURVOT"||nov==="HRSVOT"){
+    document.getElementById("calCard").style.display="none";
+    document.getElementById("subArea").style.display="none";
+    document.getElementById("certInlineArea").style.display="block";
+    prepCertInline();
+    return;
+  }
+  document.getElementById("certInlineArea").style.display="none";
   if(!curE.lc){document.getElementById("calCard").style.display="none";return}
   document.getElementById("calCard").style.display="block";
   document.getElementById("calNote").textContent="Días en rojo = sin cupos para "+curE.lc+" ("+curE.lb+") en "+curE.co+". Disponibilidad en tiempo real.";
@@ -1300,6 +1332,79 @@ async function enviarCertificado(){
     document.getElementById('certOkArea').style.display='block';
     document.getElementById('certOkMsg').innerHTML='<strong>'+certEmp.nm+'</strong> · Certificado registrado y guardado en Drive';
     toast('\u2713 Certificado registrado');
+  } else {
+    msg.textContent='Error al subir. Verifica la conexión.';msg.style.color='var(--rd)';
+  }
+}
+
+// ═══ CERTIFICADO INLINE (JURVOT / HRSVOT) ═══════════════
+let certInlineFileData=null, certInlineFileType=null, certInlineFileName2=null;
+
+function prepCertInline(){
+  certInlineFileData=null;
+  document.getElementById('certInlineFileName').textContent='\u{1F4C2} Seleccionar archivo...';
+  document.getElementById('certInlinePreview').style.display='none';
+  document.getElementById('certInlineMsg').textContent='';
+  document.getElementById('btnCertInline').style.display='none';
+}
+
+function onCertInlineFile(input){
+  if(!input.files||!input.files[0]) return;
+  const file=input.files[0];
+  certInlineFileName2=file.name;
+  certInlineFileType=file.type;
+  document.getElementById('certInlineFileName').textContent='\u{1F4C4} '+file.name;
+  if(file.type.startsWith('image/')){
+    const r=new FileReader();
+    r.onload=e=>{
+      document.getElementById('certInlineImg').src=e.target.result;
+      document.getElementById('certInlinePreview').style.display='block';
+    };
+    r.readAsDataURL(file);
+  }
+  const r2=new FileReader();
+  r2.onload=e=>{
+    certInlineFileData=e.target.result.split(',')[1];
+    document.getElementById('btnCertInline').style.display='flex';
+  };
+  r2.readAsDataURL(file);
+}
+
+async function enviarCertInline(){
+  if(!curE||!certInlineFileData){toast('Selecciona el archivo primero');return}
+  const nov=document.getElementById('sNov').value;
+  const nn=NOVS.find(x=>x.c===nov)?.n||nov;
+  const btn=document.getElementById('btnCertInline');
+  const msg=document.getElementById('certInlineMsg');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Registrando...';
+  msg.textContent='Subiendo certificado a Drive...';msg.style.color='var(--t2)';
+
+  const payload={
+    action:'savecertificado',
+    id:curE.id,name:curE.nm,country:curE.co,
+    lob:curE.lb,lobCode:curE.lc,supervisor:curE.sv||'',
+    nov,novName:nn,
+    fileName:certInlineFileName2,fileType:certInlineFileType,
+    fileData:certInlineFileData,
+    ts:new Date().toISOString()
+  };
+
+  let ok2=false;
+  try{
+    await fetch(URL,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)});
+    ok2=true;
+  }catch(e){console.warn('cert err:',e)}
+
+  btn.disabled=false;btn.innerHTML='Registrar certificado y solicitud';
+  msg.textContent='';
+
+  if(ok2){
+    document.getElementById('certInlineArea').style.display='none';
+    document.getElementById('okArea').style.display='block';
+    document.getElementById('okMsg').innerHTML='<strong>'+curE.nm+'</strong> · '+nn+' ✓ Certificado registrado en Drive';
+    toast('✓ Certificado registrado');
   } else {
     msg.textContent='Error al subir. Verifica la conexión.';msg.style.color='var(--rd)';
   }
