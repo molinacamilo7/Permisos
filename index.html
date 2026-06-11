@@ -597,7 +597,7 @@ function onNov(){
   if(!curE)return;
   const nov=document.getElementById("sNov").value;
   if(!nov)return;
-  if(nov==="JURVOT"||nov==="HRSVOT"){
+  if(nov==="JURVOT"||nov==="HRSVOT"||nov.toUpperCase()==="JURVOT"||nov.toUpperCase()==="HRSVOT"){
     document.getElementById("calCard").style.display="none";
     document.getElementById("subArea").style.display="none";
     document.getElementById("certInlineArea").style.display="block";
