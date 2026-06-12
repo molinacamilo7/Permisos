@@ -2,6 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Validador de Permisos v2.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -152,39 +155,12 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
   </div>
 </div>
 
-<!-- CERTIFICADO ELECTORAL -->
-<div class="ov" id="ovCert">
-  <div class="lbx" style="max-width:420px">
-    <h2>&#128393; Certificado Electoral</h2>
-    <p>Registra tu certificado de votaci&#243;n para las horas de permiso.</p>
-    <div class="fld" style="margin-bottom:10px"><label>ID Empleado</label><input type="text" id="certId" placeholder="Ej: 10837" inputmode="numeric" oninput="onCertId()"></div>
-    <div class="emp" id="certEmpBox" style="margin-bottom:12px"><span class="emp-hint" style="font-size:12px">Ingresa tu ID</span></div>
-    <div id="certUploadArea" style="display:none">
-      <div class="fld" style="margin-bottom:10px"><label>Certificado (foto o PDF)</label>
-        <label style="display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);cursor:pointer;font-size:13px;color:var(--t2)">
-          <span id="certFileName">&#128194; Seleccionar...</span>
-          <input type="file" id="certFile" accept="image/*,.pdf" style="display:none" onchange="onCertFile(this)">
-        </label>
-      </div>
-      <div id="certPreview" style="display:none;margin-bottom:10px;text-align:center"><img id="certImg" style="max-width:100%;max-height:150px;border-radius:8px" src=""></div>
-    </div>
-    <div id="certMsg" style="font-size:12px;margin-bottom:8px;min-height:16px"></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn bp" id="btnCertSend" onclick="enviarCertificado()" style="display:none">Registrar</button>
-      <button class="bs" style="flex:1" onclick="document.getElementById('ovCert').classList.remove('show')">Cancelar</button>
-    </div>
-    <div id="certOkArea" style="display:none;margin-top:10px">
-      <div class="bn ok"><div class="bi">&#10003;</div><div><div class="bt">Certificado registrado</div><div class="bd2" id="certOkMsg"></div></div></div>
-      <button class="bs" style="margin-top:6px;width:100%" onclick="document.getElementById('ovCert').classList.remove('show')">Cerrar</button>
-    </div>
-  </div>
-</div>
 <div class="bar">
   <div class="bar-l">
     <div class="bar-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h2m-2 4h4"/></svg></div>
     <div><div class="bar-title" id="bTitle">Validador de Permisos</div><div class="bar-sub" id="bSub">Colombia &amp; Panam&#225;</div></div>
   </div>
-  <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span><button class="bar-btn" onclick="document.getElementById('ovCert').classList.add('show')" style="font-size:11px;padding:4px 9px">&#128393;</button><button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button></div>
+  <div class="bar-r"><span class="bar-chip" id="bChip">ACTIVO</span><button class="bar-btn" id="btnAdm" onclick="clickAdmin()">Admin</button></div>
 </div>
 
 <div class="main">
@@ -213,21 +189,6 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
         <div class="li"><div class="ld" style="background:var(--gb);border:1px solid var(--gc)"></div>En rango</div>
       </div>
       <div class="sel-txt" id="selTxt">Selecciona la fecha de inicio</div>
-    </div>
-  </div>
-  <div id="certInlineArea" style="display:none">
-    <div class="card">
-      <div class="hd"><span class="hd-lbl">Subir certificado electoral</span><div class="hd-ln"></div></div>
-      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.65">Para registrar tu permiso por votación sube tu certificado. Queda guardado en Google Drive.</div>
-      <div class="fld" style="margin-bottom:12px"><label>Certificado (foto o PDF)</label>
-        <label style="display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);cursor:pointer;font-size:13px;color:var(--t2)">
-          <span id="certInlineFileName">&#128194; Seleccionar archivo...</span>
-          <input type="file" id="certInlineFile" accept="image/*,.pdf" style="display:none" onchange="onCertInlineFile(this)">
-        </label>
-      </div>
-      <div id="certInlinePreview" style="display:none;margin-bottom:12px;text-align:center"><img id="certInlineImg" style="max-width:100%;max-height:180px;border-radius:8px" src=""></div>
-      <div id="certInlineMsg" style="font-size:12px;margin-bottom:8px;min-height:16px"></div>
-      <button class="btn bp" id="btnCertInline" onclick="enviarCertInline()" style="display:none">Registrar certificado y solicitud</button>
     </div>
   </div>
   <div id="subArea" style="display:none">
@@ -415,10 +376,10 @@ footer{text-align:center;padding:18px;font-size:11px;color:var(--t3)}
 const S={g:k=>{try{return JSON.parse(localStorage.getItem('vp_'+k))}catch(e){return null}},s:(k,v)=>localStorage.setItem('vp_'+k,JSON.stringify(v))};
 
 // Config local (título, fechas, LOBs, semanas, novedades, contraseña)
-let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'JULIO 2026',ini:'2026-07-01',fin:'2026-07-31'};
+let CFG  = S.g('cfg')  || {title:'Validador de Permisos',sub:'Colombia & Panamá',chip:'ACTIVO',ini:'2026-06-01',fin:'2026-06-30'};
 let LOBS = S.g('lobs') || {"Colombia":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"},"Panama":{"CC":"Classicare","OU":"Outbound","CO":"Comercial","PV":"Proveedores","ST":"Stars"}};
-let SEMS = S.g('sems') || [{n:27,d:"2026-06-29"},{n:28,d:"2026-07-06"},{n:29,d:"2026-07-13"},{n:30,d:"2026-07-20"},{n:31,d:"2026-07-27"}];
-let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"},{c:"JURVOT",n:"Día jurado votación"},{c:"HRSVOT",n:"Hrs. por votación"}];
+let SEMS = S.g('sems') || [{n:23,d:"2026-06-01"},{n:24,d:"2026-06-08"},{n:25,d:"2026-06-15"},{n:26,d:"2026-06-22"},{n:27,d:"2026-06-29"}];
+let NOVS = S.g('novs') || [{c:"VAC",n:"Vacaciones"},{c:"COMP",n:"Compensatorio"},{c:"LNR",n:"Lic. no remunerada"},{c:"DF",n:"Día de la Familia"},{c:"EM",n:"Empleado del mes"},{c:"VPA",n:"Vac. por antigüedad"}];
 let PWD  = S.g('pwd')  || 'admin123';
 let URL  = S.g('url')  || 'https://script.google.com/macros/s/AKfycbzUwhTJfrVjgSbMn7_IfYQlGMblMWj2S_-mm0NoOMiKQOihlayPB_vefwe7VjWQteiL/exec';
 
@@ -453,16 +414,13 @@ function msgEl(id,txt,col){const e=document.getElementById(id);if(!e)return;e.te
 // Solución: usar SOLO GET para todo. Las escrituras se envían como
 // parámetros GET codificados. Apps Script los procesa en doGet.
 
-async function apiGet(params,timeoutMs=12000){
+async function apiGet(params){
   if(!URL) return null;
   const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
   try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),timeoutMs);
-    const r=await fetch(URL+'?'+qs,{cache:'no-store',signal:ctrl.signal});
-    clearTimeout(tid);
+    const r=await fetch(URL+'?'+qs,{cache:'no-store'});
     return await r.json();
-  }catch(e){console.warn('[apiGet]',e.name,e.message);return null;}
+  }catch(e){console.warn('apiGet err',e);return null}
 }
 
 // Para escrituras: dividir en lotes pequeños y enviar como GET
@@ -519,55 +477,74 @@ function lobCodeFrom(nm){
 }
 
 // ═══ CARGAR ROSTER DESDE SHEETS ═══════════════════
-async function loadRosterFromSheets(){
-  if(!URL){toast("Configura la URL del script primero");return}
-  const data=await apiGet({action:"roster"});
-  if(!data||!Array.isArray(data)){toast("No se pudo cargar el roster desde Sheets");return}
-  // data es array de arrays: [ID, Nombre, País, LOB, Rol, Supervisor]
-  const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
-  const header=rows[0];
-  // Detectar si tiene cabecera (primera celda es texto no numérico)
-  const start=isNaN(parseInt(rows[0][0]))?1:0;
-  ROST=rows.slice(start).map(r=>{
-    const id=parseInt(r[0]),nm=String(r[1]||"").toUpperCase(),co=String(r[2]||""),lb=String(r[3]||""),ro=String(r[4]||"Agentes"),sv=String(r[5]||"");
-    const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
-    return {id,nm,co,lb,lc,ro,sv};
-  }).filter(r=>r.id&&r.nm);
-  S.s('rost',ROST);
-  rendAgList();
-  toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+async function loadRosterFromSheets(silent=false){
+  console.log('[Roster] Iniciando carga...');
+  if(!URL){if(!silent)toast("Configura la URL del script primero");return}
+  try{
+    const data=await apiGet({action:"roster"});
+    console.log('[Roster] Respuesta:', data?'OK ('+( Array.isArray(data)?data.length:'no-array')+' filas)':'null');
+    if(!data||!Array.isArray(data)){if(!silent)toast("No se pudo cargar el roster desde Sheets");return}
+    const rows=data.filter(r=>r.length>=2&&r[0]&&r[1]);
+    if(!rows.length){console.warn('[Roster] Sin filas válidas');return;}
+    const start=isNaN(parseInt(rows[0][0]))?1:0;
+    ROST=rows.slice(start).map(r=>{
+      const id=parseInt(r[0]),nm=String(r[1]||"").toUpperCase(),co=String(r[2]||""),lb=String(r[3]||""),ro=String(r[4]||"Agentes"),sv=String(r[5]||"");
+      const lc=lobCodeFrom(lb)||lb.toUpperCase().slice(0,2)||"";
+      return {id,nm,co,lb,lc,ro,sv};
+    }).filter(r=>r.id&&r.nm);
+    S.s('rost',ROST);
+    console.log('[Roster] ✓ Cargados '+ROST.length+' agentes');
+    if(isAdm) rendAgList();
+    if(!silent) toast("✓ "+ROST.length+" agentes cargados desde Sheets");
+  }catch(err){
+    console.error('[Roster] Error:',err);
+    if(!silent)toast("Error cargando roster: "+err.message);
+  }
 }
 
+// Si ya tenemos roster en caché local, usarlo; si no, intentar cargar
+let rosterReady = false;
 async function initRoster(){
   const box=document.getElementById("empBox");
-  if(box&&!document.getElementById("eId").value.trim())
-    box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Conectando...</span>';
+  const idVal=document.getElementById("eId").value.trim();
+  if(box&&!idVal)
+    box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Conectando con Google Sheets...</span>';
   await loadRosterFromSheets(true);
+  rosterReady=true;
+  const v=document.getElementById("eId").value.trim();
+  if(v){
+    onEmp();
+  } else if(ROST.length===0&&box){
+    box.className="emp er";
+    box.innerHTML='<span class="emp-hint" style="color:var(--am)">&#9888; Sin conexión a Sheets. <button class="bs" style="margin-left:8px" onclick="retryRoster()">&#8635; Reintentar</button></span>';
+  } else if(box){
+    box.className="emp";
+    box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';
+  }
+}
+async function retryRoster(){
+  const box=document.getElementById("empBox");
+  if(box) box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Reintentando conexión...</span>';
+  rosterReady=false;
+  await loadRosterFromSheets(true);
+  rosterReady=true;
   const v=document.getElementById("eId").value.trim();
   if(v) onEmp();
-  else if(ROST.length===0&&box){
+  else if(ROST.length===0){
     box.className="emp er";
-    box.innerHTML='<span class="emp-hint" style="color:var(--am)">&#9888; Sin conexión. <button class="bs" style="margin-left:8px" onclick="initRoster()">&#8635; Reintentar</button></span>';
-  } else if(box){box.className="emp";box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';}
+    box.innerHTML='<span class="emp-hint" style="color:var(--am)">&#9888; Sin conexión. Verifica tu internet. <button class="bs" style="margin-left:8px" onclick="retryRoster()">&#8635; Reintentar</button></span>';
+  } else {
+    box.className="emp";
+    box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';
+    toast("✓ "+ROST.length+" agentes cargados");
+  }
 }
-async function saveConfigToSheets(){
-  if(!URL) return;
-  try{await apiPost({action:'saveconfig',config:{sems:JSON.stringify(SEMS),novs:JSON.stringify(NOVS),cfg:JSON.stringify(CFG),url:URL}});}
-  catch(e){console.warn('saveConfig:',e);}
-}
-async function initConfig(){
-  if(!URL) return;
-  try{
-    const data=await apiGet({action:'config'});
-    if(!data||!Object.keys(data).length) return;
-    if(data.sems){try{const s=JSON.parse(data.sems);if(Array.isArray(s)&&s.length){SEMS=s;S.s('sems',SEMS);}}catch(e){}}
-    if(data.novs){try{const n=JSON.parse(data.novs);if(Array.isArray(n)&&n.length){NOVS=n;S.s('novs',NOVS);fillNovs();}}catch(e){}}
-    if(data.cfg){try{const c=JSON.parse(data.cfg);if(c&&c.title){CFG=c;S.s('cfg',CFG);applyC();}}catch(e){}}
-    if(data.url&&data.url.startsWith('https://')&&data.url!==URL){URL=data.url;S.s('url',URL);}
-  }catch(e){console.warn('initConfig:',e);}
-}
+
 applyC(); fillNovs();
 initConfig().then(()=>initRoster());
+
+
+
 
 // ═══ AGENTE ═══════════════════════════════════════
 let curE=null,selA=null,selB=null,selSt=0;
@@ -581,7 +558,16 @@ function onEmp(){
   document.getElementById("okArea").style.display="none";
   if(!v){box.className="emp";box.innerHTML='<span class="emp-hint">Ingresa tu ID para continuar</span>';return}
   const e=ROST.find(r=>String(r.id)===v);
-  if(!e){box.className="emp er";box.innerHTML='<span class="emp-hint" style="color:var(--rd)">ID no encontrado. Si eres nuevo, pide al administrador que actualice el roster.</span>';return}
+  if(!e){
+    if(typeof rosterReady!=='undefined'&&!rosterReady){
+      box.className="emp";
+      box.innerHTML='<span class="emp-hint"><span class="spindark"></span> Cargando roster, espera un momento...</span>';
+      return;
+    }
+    box.className="emp er";
+    box.innerHTML='<span class="emp-hint" style="color:var(--rd)">ID no encontrado. Si eres nuevo, pide al administrador que actualice el roster.</span>';
+    return;
+  }
   curE=e;
   box.className="emp ok";
   box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm">'+e.nm+'</div><div class="emp-pp">'
@@ -595,15 +581,7 @@ function onEmp(){
 
 function onNov(){
   if(!curE)return;
-  const nov=document.getElementById("sNov").value;
-  if(!nov)return;
-  if(nov==="JURVOT"||nov==="HRSVOT"||nov.toUpperCase()==="JURVOT"||nov.toUpperCase()==="HRSVOT"){
-    document.getElementById("calCard").style.display="none";
-    document.getElementById("subArea").style.display="none";
-    document.getElementById("certInlineArea").style.display="block";
-    prepCertInline();return;
-  }
-  document.getElementById("certInlineArea").style.display="none";
+  if(!document.getElementById("sNov").value)return;
   if(!curE.lc){document.getElementById("calCard").style.display="none";return}
   document.getElementById("calCard").style.display="block";
   document.getElementById("calNote").textContent="Días en rojo = sin cupos para "+curE.lc+" ("+curE.lb+") en "+curE.co+". Disponibilidad en tiempo real.";
@@ -618,33 +596,20 @@ async function loadAndRenderCal(){
   // 1. Obtener cupos base desde Sheets
   const cuposData=await apiGet({action:"cuposbase",country:curE.co,lob:curE.lc});
 
-  // 2. Obtener solicitudes ya registradas para descontar usados
-  const solsData=await apiGet({action:"get"});
-  const usedMap={};
-  if(solsData&&Array.isArray(solsData)){
-    solsData.forEach(r=>{
-      if(r.country!==curE.co||(r.lobCode!==curE.lc&&r.lob!==curE.lc))return;
-      if(!r.fechaIni||!r.fechaFin)return;
-      let c=new Date(String(r.fechaIni).slice(0,10)+"T00:00:00");
-      const f=new Date(String(r.fechaFin).slice(0,10)+"T00:00:00");
-      while(c<=f){const d2=ds(c);usedMap[d2]=(usedMap[d2]||0)+1;c.setDate(c.getDate()+1)}
-    });
-  }
-
-  // 3. Construir mapa de cupos disponibles por fecha
+  // NOTA: Los cupos en Sheets ya reflejan el valor real descontado al guardar.
+  // NO se resta de nuevo aquí para evitar doble descuento.
+  // 2. Construir mapa directo desde Sheets
   const baseMap={};
   if(cuposData&&cuposData.cupos){
     cuposData.cupos.forEach(r=>{if(r.fecha)baseMap[r.fecha]=Number(r.cupo)||0});
   }
 
-  // 4. Llenar cache día a día
+  // 3. Llenar cache día a día
   const fst=new Date(CFG.ini+"T00:00:00"),last=new Date(CFG.fin+"T00:00:00");
   let cur=new Date(fst);
   while(cur<=last){
     const dstr=ds(cur);
-    const base=baseMap[dstr]??0;
-    const used=usedMap[dstr]||0;
-    calCache[dstr]=Math.max(0,base-used);
+    calCache[dstr]=baseMap[dstr]??0;
     cur.setDate(cur.getDate()+1);
   }
 
@@ -1080,11 +1045,11 @@ function addSem(){
   const n=parseInt(document.getElementById("nwNum").value),d=document.getElementById("nwDate").value;
   if(!n||!d){toast("Ingresa número y fecha");return}
   if(SEMS.find(w=>w.n===n)){toast("Esa semana ya existe");return}
-  SEMS.push({n,d});SEMS.sort((a,b)=>a.n-b.n);S.s('sems',SEMS);saveConfigToSheets();
+  SEMS.push({n,d});SEMS.sort((a,b)=>a.n-b.n);S.s('sems',SEMS);
   document.getElementById("nwNum").value="";document.getElementById("nwDate").value="";
   rendSemList();rendCupSels();toast("✓ Semana agregada");
 }
-function delSem(i){SEMS.splice(i,1);S.s('sems',SEMS);saveConfigToSheets();rendSemList();rendCupSels();toast("Semana eliminada")}
+function delSem(i){SEMS.splice(i,1);S.s('sems',SEMS);rendSemList();rendCupSels();toast("Semana eliminada")}
 
 // ═══ AGENTES ═══════════════════════════════════════
 function fillAgSels(){
@@ -1176,9 +1141,9 @@ function saveCfg(){
   CFG.title=document.getElementById("cfT").value||"Validador de Permisos";
   CFG.sub=document.getElementById("cfS").value||"";CFG.chip=document.getElementById("cfC").value||"ACTIVO";
   CFG.ini=document.getElementById("cfI").value;CFG.fin=document.getElementById("cfF").value;
-  S.s('cfg',CFG);applyC();calCache={};msgEl("cfMsg","✓ Guardado","var(--gn)");saveConfigToSheets();
+  S.s('cfg',CFG);applyC();calCache={};msgEl("cfMsg","✓ Guardado","var(--gn)");
 }
-function saveUrl(){URL=document.getElementById("cfUrl").value.trim();S.s('url',URL);msgEl("cfMsg","✓ URL guardada","var(--gn)");saveConfigToSheets();}
+function saveUrl(){URL=document.getElementById("cfUrl").value.trim();S.s('url',URL);msgEl("cfMsg","✓ URL guardada","var(--gn)")}
 async function testUrl(){
   const u=document.getElementById("cfUrl").value.trim();
   const st=document.getElementById("urlSt");
@@ -1198,11 +1163,11 @@ function addNov(){
   const c=document.getElementById("nnC").value.trim().toUpperCase(),n=document.getElementById("nnN").value.trim();
   if(!c||!n){toast("Completa código y nombre");return}
   if(NOVS.find(x=>x.c===c)){toast("Ese código ya existe");return}
-  NOVS.push({c,n});S.s('novs',NOVS);saveConfigToSheets();
+  NOVS.push({c,n});S.s('novs',NOVS);
   document.getElementById("nnC").value="";document.getElementById("nnN").value="";
   rendNovList();fillNovs();toast("✓ Novedad agregada");
 }
-function delNov(i){NOVS.splice(i,1);S.s('novs',NOVS);saveConfigToSheets();rendNovList();fillNovs();toast("Novedad eliminada")}
+function delNov(i){NOVS.splice(i,1);S.s('novs',NOVS);rendNovList();fillNovs();toast("Novedad eliminada")}
 function chgPwd(){
   const p1=document.getElementById("np1").value,p2=document.getElementById("np2").value;
   if(!p1){msgEl("pwMsg","Ingresa una contraseña","var(--rd)");return}
@@ -1210,76 +1175,6 @@ function chgPwd(){
   PWD=p1;S.s('pwd',p1);document.getElementById("np1").value="";document.getElementById("np2").value="";
   msgEl("pwMsg","✓ Actualizada","var(--gn)");
 }
-// CERTIFICADO MODAL
-let certEmp=null,certFD=null,certFT=null,certFN=null;
-function onCertId(){
-  const v=document.getElementById('certId').value.trim();
-  const box=document.getElementById('certEmpBox');
-  certEmp=null;document.getElementById('certUploadArea').style.display='none';document.getElementById('btnCertSend').style.display='none';
-  if(!v){box.className='emp';box.innerHTML='<span class="emp-hint" style="font-size:12px">Ingresa tu ID</span>';return}
-  const e=ROST.find(r=>String(r.id)===v);
-  if(!e){box.className='emp er';box.innerHTML='<span class="emp-hint" style="color:var(--rd);font-size:12px">ID no encontrado</span>';return}
-  certEmp=e;box.className='emp ok';
-  box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm" style="font-size:13px">'+e.nm+'</div><div class="emp-pp"><span class="pi pb">'+e.co+'</span><span class="pi pg">'+e.lc+' · '+e.lb+'</span></div></div>';
-  document.getElementById('certUploadArea').style.display='block';
-}
-function onCertFile(input){
-  if(!input.files||!input.files[0]) return;
-  const file=input.files[0];certFN=file.name;certFT=file.type;
-  document.getElementById('certFileName').textContent=file.name;
-  if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certImg').src=e.target.result;document.getElementById('certPreview').style.display='block'};r.readAsDataURL(file);}
-  const r2=new FileReader();r2.onload=e=>{certFD=e.target.result.split(',')[1];document.getElementById('btnCertSend').style.display='flex';};r2.readAsDataURL(file);
-}
-async function enviarCertificado(){
-  if(!certEmp||!certFD){toast('Completa el ID y selecciona el archivo');return}
-  const btn=document.getElementById('btnCertSend'),msg=document.getElementById('certMsg');
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Subiendo...';
-  const ok2=await uploadCert({id:certEmp.id,name:certEmp.nm,country:certEmp.co,lob:certEmp.lb,lobCode:certEmp.lc,supervisor:certEmp.sv||'',fileName:certFN,fileType:certFT,fileData:certFD,ts:new Date().toISOString()},msg);
-  btn.disabled=false;btn.innerHTML='Registrar';
-  if(ok2){document.getElementById('btnCertSend').style.display='none';document.getElementById('certUploadArea').style.display='none';document.getElementById('certOkArea').style.display='block';document.getElementById('certOkMsg').innerHTML='<strong>'+certEmp.nm+'</strong> guardado en Drive';toast('Certificado registrado');}
-}
-// CERTIFICADO INLINE
-let certIFD=null,certIFT=null,certIFN=null;
-function prepCertInline(){certIFD=null;document.getElementById('certInlineFileName').textContent='Seleccionar archivo...';document.getElementById('certInlinePreview').style.display='none';document.getElementById('certInlineMsg').textContent='';document.getElementById('btnCertInline').style.display='none';}
-function onCertInlineFile(input){
-  if(!input.files||!input.files[0]) return;
-  const file=input.files[0];certIFN=file.name;certIFT=file.type;
-  document.getElementById('certInlineFileName').textContent=file.name;
-  if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certInlineImg').src=e.target.result;document.getElementById('certInlinePreview').style.display='block'};r.readAsDataURL(file);}
-  const r2=new FileReader();r2.onload=e=>{certIFD=e.target.result.split(',')[1];document.getElementById('btnCertInline').style.display='flex';};r2.readAsDataURL(file);
-}
-async function enviarCertInline(){
-  if(!curE||!certIFD){toast('Selecciona el archivo primero');return}
-  const nov=document.getElementById('sNov').value;
-  const nn=NOVS.find(x=>x.c===nov)?.n||nov;
-  const btn=document.getElementById('btnCertInline'),msg=document.getElementById('certInlineMsg');
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Registrando...';
-  const ok2=await uploadCert({id:curE.id,name:curE.nm,country:curE.co,lob:curE.lb,lobCode:curE.lc,supervisor:curE.sv||'',nov,novName:nn,fileName:certIFN,fileType:certIFT,fileData:certIFD,ts:new Date().toISOString()},msg);
-  btn.disabled=false;btn.innerHTML='Registrar certificado y solicitud';
-  if(ok2){document.getElementById('certInlineArea').style.display='none';document.getElementById('okArea').style.display='block';document.getElementById('okMsg').innerHTML='<strong>'+curE.nm+'</strong> · '+nn+' ✓ Certificado en Drive';toast('Certificado registrado');}
-}
-// UPLOAD CERT EN CHUNKS VIA GET
-async function uploadCert(data,msg){
-  if(!URL){if(msg){msg.textContent='Sin URL configurada';msg.style.color='var(--rd)';}return false;}
-  const CHUNK=800,chunks=[];
-  for(let i=0;i<data.fileData.length;i+=CHUNK) chunks.push(data.fileData.slice(i,i+CHUNK));
-  const uid=Date.now().toString(36);
-  try{
-    const meta={...data,action:'certstart',uploadId:uid,totalChunks:chunks.length};
-    delete meta.fileData;
-    const r0=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify(meta)),{cache:'no-store'})).json();
-    if(r0.error) throw new Error(r0.error);
-    for(let i=0;i<chunks.length;i++){
-      if(msg) msg.textContent='Subiendo '+(i+1)+'/'+chunks.length+'...';
-      const rc=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify({action:'certchunk',uploadId:uid,chunkIndex:i,data:chunks[i]})),{cache:'no-store'})).json();
-      if(rc.error) throw new Error(rc.error);
-    }
-    const rf=await (await fetch(URL+'?write='+encodeURIComponent(JSON.stringify({action:'certfinish',uploadId:uid})),{cache:'no-store'})).json();
-    if(rf.error) throw new Error(rf.error);
-    return true;
-  }catch(e){if(msg){msg.textContent='Error: '+e.message;msg.style.color='var(--rd)';}return false;}
-}
-
 </script>
 </body>
 </html>
