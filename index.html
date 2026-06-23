@@ -1046,7 +1046,7 @@ async function enviarCertInline(){
 }
 async function uploadCert(data,msg){
   if(!URL){if(msg){msg.textContent='Sin URL configurada';msg.style.color='var(--rd)';}return false;}
-  const CHUNK=40000,chunks=[];
+  const CHUNK=6000,chunks=[];
   for(let i=0;i<data.fileData.length;i+=CHUNK) chunks.push(data.fileData.slice(i,i+CHUNK));
   const uid=Date.now().toString(36);
   try{
