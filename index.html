@@ -963,6 +963,31 @@ function chgPwd(){
   PWD=p1;S.s('pwd',p1);document.getElementById("np1").value="";document.getElementById("np2").value="";
   msgEl("pwMsg","✓ Actualizada","var(--gn)");
 }
+// ── Comprimir imagen antes de subir (evita fotos de celular de 5-12MB) ──
+function compressImage(file, maxWidth=1600, quality=0.7){
+  return new Promise((resolve)=>{
+    if(!file.type.startsWith('image/')){resolve(file);return;}
+    const img=new Image();
+    const reader=new FileReader();
+    reader.onload=e=>{
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>maxWidth){h=Math.round(h*(maxWidth/w));w=maxWidth;}
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>{
+          if(!blob){resolve(file);return;}
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/,'')+'.jpg', {type:'image/jpeg'}));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror=()=>resolve(file);
+      img.src=e.target.result;
+    };
+    reader.onerror=()=>resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
 let certEmp=null,certFD=null,certFT=null,certFN=null;
 function onCertId(){
   const v=document.getElementById('certId').value.trim(),box=document.getElementById('certEmpBox');
@@ -974,10 +999,13 @@ function onCertId(){
   box.innerHTML='<div class="emp-av">'+ini2(e.nm)+'</div><div><div class="emp-nm" style="font-size:13px">'+e.nm+'</div><div class="emp-pp"><span class="pi pb">'+e.co+'</span><span class="pi pg">'+e.lc+' · '+e.lb+'</span></div></div>';
   document.getElementById('certUploadArea').style.display='block';
 }
-function onCertFile(input){
+async function onCertFile(input){
   if(!input.files||!input.files[0]) return;
-  const file=input.files[0];certFN=file.name;certFT=file.type;
-  document.getElementById('certFileName').textContent=file.name;
+  document.getElementById('certFileName').textContent='Procesando imagen...';
+  const original=input.files[0];
+  const file=await compressImage(original);
+  certFN=file.name;certFT=file.type;
+  document.getElementById('certFileName').textContent=file.name+' ('+(file.size/1024).toFixed(0)+' KB)';
   if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certImg').src=e.target.result;document.getElementById('certPreview').style.display='block'};r.readAsDataURL(file);}
   const r2=new FileReader();r2.onload=e=>{certFD=e.target.result.split(',')[1];document.getElementById('btnCertSend').style.display='flex';};r2.readAsDataURL(file);
 }
@@ -997,10 +1025,13 @@ function prepCertInline(){
   document.getElementById('certInlineMsg').textContent='';
   document.getElementById('btnCertInline').style.display='none';
 }
-function onCertInlineFile(input){
+async function onCertInlineFile(input){
   if(!input.files||!input.files[0]) return;
-  const file=input.files[0];certIFN=file.name;certIFT=file.type;
-  document.getElementById('certInlineFileName').textContent=file.name;
+  document.getElementById('certInlineFileName').textContent='Procesando imagen...';
+  const original=input.files[0];
+  const file=await compressImage(original);
+  certIFN=file.name;certIFT=file.type;
+  document.getElementById('certInlineFileName').textContent=file.name+' ('+(file.size/1024).toFixed(0)+' KB)';
   if(file.type.startsWith('image/')){const r=new FileReader();r.onload=e=>{document.getElementById('certInlineImg').src=e.target.result;document.getElementById('certInlinePreview').style.display='block'};r.readAsDataURL(file);}
   const r2=new FileReader();r2.onload=e=>{certIFD=e.target.result.split(',')[1];document.getElementById('btnCertInline').style.display='flex';};r2.readAsDataURL(file);
 }
