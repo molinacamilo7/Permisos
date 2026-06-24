@@ -1060,7 +1060,7 @@ async function fetchWithRetry(url, tries=4, delayMs=1200){
 }
 async function uploadCert(data,msg){
   if(!URL){if(msg){msg.textContent='Sin URL configurada';msg.style.color='var(--rd)';}return false;}
-  const CHUNK=6000,chunks=[];
+  const CHUNK=2500,chunks=[];
   for(let i=0;i<data.fileData.length;i+=CHUNK) chunks.push(data.fileData.slice(i,i+CHUNK));
   const uid=Date.now().toString(36);
   try{
