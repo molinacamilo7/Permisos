@@ -502,7 +502,7 @@ async function retryRoster(){
 }
 async function saveConfigToSheets(){
   if(!URL) return;
-  try{await apiPost({action:'saveconfig',config:{sems:JSON.stringify(SEMS),novs:JSON.stringify(NOVS),cfg:JSON.stringify(CFG),url:URL}});}
+  try{await apiPost({action:'saveconfig',config:{sems:JSON.stringify(SEMS),novs:JSON.stringify(NOVS),cfg:JSON.stringify(CFG),lobs:JSON.stringify(LOBS),url:URL}});}
   catch(e){console.warn('saveConfig:',e);}
 }
 async function initConfig(){
@@ -512,6 +512,7 @@ async function initConfig(){
     if(!data||!Object.keys(data).length) return;
     if(data.sems){try{const s=JSON.parse(data.sems);if(Array.isArray(s)&&s.length){SEMS=s;S.s('sems',SEMS);}}catch(e){}}
     if(data.novs){try{const n=JSON.parse(data.novs);if(Array.isArray(n)&&n.length){NOVS=n;S.s('novs',NOVS);fillNovs();}}catch(e){}}
+    if(data.lobs){try{const l=JSON.parse(data.lobs);if(l&&typeof l==='object'&&Object.keys(l).length){LOBS=l;S.s('lobs',LOBS);}}catch(e){}}
     if(data.cfg){try{const c=JSON.parse(data.cfg);if(c&&c.title){CFG=c;S.s('cfg',CFG);applyC();}}catch(e){}}
     if(data.url&&data.url.startsWith('https://')&&data.url!==URL){URL=data.url;S.s('url',URL);}
   }catch(e){console.warn('initConfig:',e);}
@@ -916,10 +917,10 @@ function addLob(){
   if(!co||!cd||!nm){toast("Completa país, código y nombre");return}
   if(!LOBS[co])LOBS[co]={};if(LOBS[co][cd]){toast("Ese LOB ya existe");return}
   LOBS[co][cd]=nm;S.s('lobs',LOBS);["nlPais","nlCode","nlName"].forEach(x=>document.getElementById(x).value="");
-  rendLobList();rendCupSels();fillAgSels();toast("✓ LOB agregado");
+  rendLobList();rendCupSels();fillAgSels();saveConfigToSheets();toast("✓ LOB agregado");
 }
-function delLob(co,cd){delete LOBS[co][cd];S.s('lobs',LOBS);rendLobList();rendCupSels();toast("LOB eliminado")}
-function delPais(co){if(!confirm("¿Eliminar "+co+"?"))return;delete LOBS[co];S.s('lobs',LOBS);rendLobList();rendCupSels();toast("País eliminado")}
+function delLob(co,cd){delete LOBS[co][cd];S.s('lobs',LOBS);rendLobList();rendCupSels();saveConfigToSheets();toast("LOB eliminado")}
+function delPais(co){if(!confirm("¿Eliminar "+co+"?"))return;delete LOBS[co];S.s('lobs',LOBS);rendLobList();rendCupSels();saveConfigToSheets();toast("País eliminado")}
 function populCfg(){
   document.getElementById("cfT").value=CFG.title;document.getElementById("cfS").value=CFG.sub;
   document.getElementById("cfC").value=CFG.chip;document.getElementById("cfI").value=CFG.ini;
