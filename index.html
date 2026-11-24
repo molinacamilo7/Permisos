@@ -580,7 +580,13 @@ function rendCalDow(){document.getElementById("calDow").innerHTML=DORD.map(d=>"<
 function rendCal(){
   const g=document.getElementById("calGrid");g.innerHTML="";
   if(!curE)return;
-  const fst=new Date(CFG.ini+"T00:00:00");
+  const MES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const ini=new Date(CFG.ini+"T00:00:00"),finP=new Date(CFG.fin+"T00:00:00");
+  let fst=new Date(ini.getFullYear(),ini.getMonth(),1);
+  const mFin=new Date(finP.getFullYear(),finP.getMonth(),1);
+  const multi=fst<mFin;
+  while(fst<=mFin){
+  if(multi){const h=document.createElement("div");h.style.cssText="grid-column:1/-1;font-size:13px;font-weight:600;padding:10px 2px 4px;color:var(--tx)";h.textContent=MES[fst.getMonth()]+" "+fst.getFullYear();g.appendChild(h);}
   const fd=new Date(fst.getFullYear(),fst.getMonth(),1);
   const off=fd.getDay()===0?6:fd.getDay()-1;
   for(let i=0;i<off;i++){const x=document.createElement("div");x.className="dc gh";g.appendChild(x)}
@@ -598,6 +604,9 @@ function rendCal(){
     if(inP&&!blk)el.onclick=(s=>()=>onDay(s))(dstr);
     el.title=inP?(blk?"Sin cupos":avail+" cupo"+(avail!==1?"s":"")+" disponible"+(avail!==1?"s":"")):"";
     g.appendChild(el);
+  }
+  const tail=(off+last)%7;if(multi&&tail){for(let i=tail;i<7;i++){const x=document.createElement("div");x.className="dc gh";g.appendChild(x)}}
+  fst=new Date(fst.getFullYear(),fst.getMonth()+1,1);
   }
   updSelTxt();
 }
